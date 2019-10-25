@@ -1,0 +1,44 @@
+{
+  "id": "1475500",
+  "name": "system",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1440371",
+      "name": "参数设置",
+      "font_class": "canshushezhi",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "3248701",
+      "name": "数据",
+      "font_class": "shuju",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "4854094",
+      "name": "系统设置",
+      "font_class": "xitongshezhi",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "10056247",
+      "name": "分析",
+      "font_class": "fenxi",
+      "unicode": "e709",
+      "unicode_decimal": 59145
+    },
+    {
+      "icon_id": "10721265",
+      "name": "菜单",
+      "font_class": "caidan",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    }
+  ]
+}

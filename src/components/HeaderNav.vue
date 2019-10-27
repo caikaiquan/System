@@ -12,6 +12,7 @@ export default {
 
 <style lang='scss' scoped>
 .nav-body{
+    width: 100%;
     height: 60px;
     background-color: #fff;
     box-shadow: 0 2px 2px rgba(150,150,150,.24),0 0 10px rgba(150,150,150,.12);

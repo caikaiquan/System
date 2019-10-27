@@ -4,8 +4,8 @@
       <menu-list></menu-list>
     </div>
     <div class="right">
-        <header-nav></header-nav>
-        <router-view />
+      <header-nav></header-nav>
+      <router-view />
     </div>
   </div>
 </template>
@@ -14,23 +14,36 @@
 import MenuList from "@/components/MenuList.vue";
 import HeaderNav from "@/components/HeaderNav.vue";
 export default {
-  components: { MenuList, HeaderNav,  }
+  components: { MenuList, HeaderNav }
 };
 </script>
 
 <style lang='scss' scoped>
+@import '../assets/css/base.scss';
 .home {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;  
+  overflow: hidden;
   background-color: #f2f2f2;
   display: flex;
   .left {
-    width: 200px;
+    min-width: 200px;
     background-color: #545c64;
   }
-  .right{
-      flex: 1;
+  .right {
+    flex: 1;
+    & > div:nth-child(1){
+      width: calc(100vw - 200px);
+      min-width: 1024px;
+    }
+    & > div:nth-child(2) {
+      overflow: auto;
+      width: calc(100vw - 200px);
+      height: calc(100vh - 60px);
+      @extend .scroll_bar;
+      box-sizing: border-box;
+      padding: 20px;
+    }
   }
 }
 </style>

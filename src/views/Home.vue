@@ -4,7 +4,7 @@
       <menu-list></menu-list>
     </div>
     <div class="right">
-      <header-nav></header-nav>
+      <!-- <header-nav></header-nav> -->
       <router-view />
     </div>
   </div>
@@ -12,9 +12,9 @@
 
 <script>
 import MenuList from "@/components/MenuList.vue";
-import HeaderNav from "@/components/HeaderNav.vue";
+// import HeaderNav from "@/components/HeaderNav.vue";
 export default {
-  components: { MenuList, HeaderNav }
+  components: { MenuList }
 };
 </script>
 

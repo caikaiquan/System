@@ -1,33 +1,71 @@
 <template>
   <div class="spectrum-analysis">
+    <header>
+      <el-button :type="showStatus === 'sy'?'primary':''" @click="handleShowStatus('sy')">时域图</el-button>
+      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')">频谱图</el-button>
+    </header>
     <div class="containter">
-      <div class="select-box">
-        <el-button type="primary">时域图</el-button>
-        <el-button>频谱图</el-button>
-        <div class="date">
-          时间：
-          <el-date-picker v-model="valueDate" type="date" placeholder="选择日期"></el-date-picker>
-        </div>
-        <div class="time">
-          时分：
-          <el-select v-model="valueTime" placeholder="请选择">
-            <el-option
-              v-for="item in timeOption"
-              :key="item.value"
-              :label="item.value"
-              :value="item.value"
-            ></el-option>
-          </el-select>
+      <div class="left">
+        <i class="iconfont icon-caidan" @click="collapseShow = !collapseShow"></i>
+        <div class="time-list" :style="'height:'+timeList*24+'px'">
+          <el-collapse-transition>
+            <div v-show="collapseShow">
+              <el-radio-group v-model="timeRadio">
+                <el-radio
+                  :label="item.value"
+                  v-for="(item,index) in timeList"
+                  :key="index"
+                >{{item.value}}</el-radio>
+              </el-radio-group>
+            </div>
+          </el-collapse-transition>
         </div>
       </div>
-      <div class="spectrogram" v-show='false'>
-        <div class="spectrogram-map"></div>
-      </div>
-      <div class="time-domain-diagram" v-show='false'>
-        <div class="time-domain-diagram-map"></div>
-      </div>
-      <div class="waterfall-plot">
-        <div class="waterfall-plot-map"></div>
+      <div class="right">
+        <div class="select-box">
+          <div class="cjq">
+            采集器：
+            <el-select v-model="cjqvalue" placeholder="请选择" @change="handleCollectorNote">
+              <el-option
+                v-for="item in selectOption"
+                :key="item.CollectorNote"
+                :label="item.CollectorNote"
+                :value="item.CollectorNote"
+              ></el-option>
+            </el-select>
+          </div>
+          <div class="td">
+            通道：
+            <el-select v-model="tdvalue" placeholder="请选择">
+              <el-option
+                v-for="item in tdOption"
+                :key="item.note"
+                :label="item.note"
+                :value="item.note"
+              ></el-option>
+            </el-select>
+          </div>
+          <div class="time">
+            时间
+            <el-date-picker
+              v-model="timeValue"
+              type="datetimerange"
+              align="right"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :default-time="['00:00:00', '23:59:59']"
+            ></el-date-picker>
+          </div>
+        </div>
+        <div class="spectrogram" v-show="showStatus === 'sy'">
+          <div class="spectrogram-map"></div>
+        </div>
+        <div class="time-domain-diagram" v-show="showStatus === 'sy'">
+          <div class="time-domain-diagram-map"></div>
+        </div>
+        <div class="waterfall-plot" v-show="showStatus === 'pp'">
+          <div class="waterfall-plot-map"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -37,33 +75,108 @@
 export default {
   data() {
     return {
-      valueDate: "2019-10-27",
-      valueTime: "",
-      timeOption: [
-        { value: "00:10" },
-        { value: "00:20" },
-        { value: "00:30" },
-        { value: "00:40" },
-        { value: "00:50" },
-        { value: "01:00" },
-        { value: "01:10" },
-        { value: "01:20" },
-        { value: "01:20" }
+      showStatus: "sy",
+      timeValue: "",
+      cjqvalue: "",
+      selectOption: null,
+      cjqOption: [
+        { value: "采集器1#" },
+        { value: "采集器2#" },
+        { value: "采集器3#" },
+        { value: "采集器4#" }
       ],
-
+      tdvalue: "",
+      tdOption: [
+        // { value: "通道1" },
+        // { value: "通道2" },
+        // { value: "通道3" },
+        // { value: "通道4" }
+      ],
+      timeList: [
+        { value: "2019-10-10 10:10:00" },
+        { value: "2019-10-11 10:12:00" },
+        { value: "2019-10-12 10:14:00" },
+        { value: "2019-10-13 10:15:00" },
+        { value: "2019-10-14 10:16:00" },
+        { value: "2019-10-15 10:20:00" }
+      ],
+      timeRadio: "",
+      collapseShow: true
     };
   },
-  mounted(){
-    this.drawSpectrogram()
-    this.drawTimeDomainDiagram()
-    this.drawWaterfallPlot()
+  mounted() {
+    this.drawSpectrogram();
+    this.drawTimeDomainDiagram();
+    this.getGetAllCollector();
+    // this.drawWaterfallPlot()
   },
   methods: {
+    getGetAllCollector() {
+      if (false && YZ_GetAllCollector) {
+        YZ_GetAllCollector(res => {
+          // res =
+        });
+      } else {
+        let res = [
+          {
+            CollectorId: "C0001",
+            CollectorNote: "采集器1#",
+            Channel0Note: "通道0",
+            Channel1Note: "通道1",
+            Channel2Note: "通道2",
+            Channel3Note: "通道3"
+          },
+          {
+            CollectorId: "C0002",
+            CollectorNote: "采集器2#",
+            Channel0Note: "通道0",
+            Channel1Note: "通道1",
+            Channel2Note: "通道2",
+            Channel3Note: "通道3"
+          }
+        ];
+
+        let selectOption = [
+          {
+            CollectorId: "C0001",
+            CollectorNote: "采集器1#",
+            ChannelNotes: [
+              { note: "通道0" },
+              { note: "通道1" },
+              { note: "通道2" },
+              { note: "通道3" }
+            ]
+          },
+          {
+            CollectorId: "C0002",
+            CollectorNote: "采集器2#",
+            ChannelNotes: [
+              { note: "通道0" },
+              { note: "通道1" },
+              { note: "通道2" },
+              { note: "通道3" }
+            ]
+          }
+        ];
+
+        this.selectOption = selectOption;
+      }
+    },
+    handleCollectorNote() {
+      this.tdOption = [];
+      let tdOptionArr = this.selectOption.filter(
+        item => item.CollectorNote === this.cjqvalue
+      );
+
+      if (tdOptionArr.length) {
+        this.tdOption = tdOptionArr[0].ChannelNotes;
+      }
+    },
     drawSpectrogram() {
       let echarts = this.$echarts.init(
         document.querySelector(".spectrogram-map")
       );
-
+      echarts.clear();
       let data = [
         ["2000-06-05", 116],
         ["2000-06-06", 129],
@@ -117,10 +230,10 @@ export default {
         ["2000-07-24", 60]
       ];
 
-      let  dateList = data.map(function(item) {
+      let dateList = data.map(function(item) {
         return item[0];
       });
-      let  valueList = data.map(function(item) {
+      let valueList = data.map(function(item) {
         return item[1];
       });
 
@@ -139,12 +252,12 @@ export default {
         title: [
           {
             left: "center",
-            top:20,
+            top: 20,
             text: "时域图",
-            textStyle:{
-              fontSize:"26",
-              fontWeight:600,
-              color:'#409EFF'
+            textStyle: {
+              fontSize: "26",
+              fontWeight: 600,
+              color: "#409EFF"
             }
           }
         ],
@@ -163,8 +276,8 @@ export default {
         ],
         grid: [
           {
-            left:"40",
-            right:"40"
+            left: "40",
+            right: "40"
           }
         ],
         series: [
@@ -177,11 +290,11 @@ export default {
       };
       echarts.setOption(option);
     },
-    drawTimeDomainDiagram(){
+    drawTimeDomainDiagram() {
       let echarts = this.$echarts.init(
         document.querySelector(".time-domain-diagram-map")
       );
-
+      echarts.clear();
       let data = [
         ["2000-06-05", 116],
         ["2000-06-06", 129],
@@ -235,10 +348,10 @@ export default {
         ["2000-07-24", 60]
       ];
 
-      let  dateList = data.map(function(item) {
+      let dateList = data.map(function(item) {
         return item[0];
       });
-      let  valueList = data.map(function(item) {
+      let valueList = data.map(function(item) {
         return item[1];
       });
 
@@ -257,12 +370,12 @@ export default {
         title: [
           {
             left: "center",
-            top:20,
+            top: 20,
             text: "频谱图",
-            textStyle:{
-              fontSize:"26",
-              fontWeight:600,
-              color:'#409EFF'
+            textStyle: {
+              fontSize: "26",
+              fontWeight: 600,
+              color: "#409EFF"
             }
           }
         ],
@@ -281,8 +394,8 @@ export default {
         ],
         grid: [
           {
-            left:"40",
-            right:"40"
+            left: "40",
+            right: "40"
           }
         ],
         series: [
@@ -295,10 +408,12 @@ export default {
       };
       echarts.setOption(option);
     },
-    drawWaterfallPlot(){
+    drawWaterfallPlot() {
       let echarts = this.$echarts.init(
         document.querySelector(".waterfall-plot-map")
       );
+
+      echarts.clear();
       var hours = [1, 2, 3, 4, 5, 6, 7];
       var days = ["A", "B", "C", "D", "E", "F"];
       var data1 = [
@@ -451,7 +566,7 @@ export default {
               "#a50026"
             ]
           },
-          alpha:0
+          alpha: 0
         },
         xAxis3D: {
           type: "value",
@@ -468,18 +583,18 @@ export default {
         grid3D: {
           boxWidth: 350,
           boxDepth: 90,
-          boxHeight:90,
+          boxHeight: 90,
           light: {
             main: {
               intensity: 1.2
             },
             ambient: {
               intensity: 0.3
-            },
+            }
           },
-          viewControl:{
-              alpha:0,
-              beta:0
+          viewControl: {
+            alpha: 0,
+            beta: 0
           }
         },
         series: [
@@ -544,54 +659,134 @@ export default {
         ]
       });
       echarts.setOption(option);
+    },
+    handleShowStatus(type) {
+      return;
+      if (type === this.showStatus) {
+        return;
+      }
+      this.showStatus = type;
+      if (type === "sy") {
+        setTimeout(() => {
+          this.drawSpectrogram();
+          this.drawTimeDomainDiagram();
+        }, 100);
+      } else {
+        setTimeout(() => {
+          this.drawWaterfallPlot();
+        }, 100);
+      }
     }
-
   }
 };
 </script>
 
-<style scoped lang='scss'>
+<style lang='scss'>
+@import "../assets/css/base.scss";
 .spectrum-analysis {
   width: 100%;
   height: 100%;
   background-color: #f2f2f2;
+  header {
+    height: 60px;
+    line-height: 60px;
+    padding-left: 20px;
+    // display: flex;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+  }
   .containter {
-    width: 100%;
-    min-width: 824px;
+    width: calc(100vw - 200px);
+    .left {
+      width: 190px;
+      float: left;
+      height: calc(100vh - 60px);
+      background: #fff;
+      position: relative;
+      & > i {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translate(0, -50%);
+        cursor: pointer;
+      }
+
+      .time-list {
+        margin-top: 40px;
+        max-width: 190px;
+        padding-left: 10px;
+        .el-radio {
+          height: 24px;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+        }
+      }
+    }
+    .right {
+      width: calc(100vw - 390px);
+      height: calc(100vh - 60px);
+      @extend .scroll_bar;
+      float: right;
+      overflow: auto;
+      padding-left: 20px;
+    }
     .select-box {
+      min-width: 500px;
       display: flex;
-      .date {
+      margin-top: 20px;
+      .cjq{
+        .el-select{
+          width: 100px;
+        }
+      }
+      .td {
         margin-left: 20px;
+        .el-select{
+          width: 100px;
+        }
       }
       .time {
         margin-left: 20px;
+        .el-date-editor{
+          margin-left: 10px;
+        }
       }
     }
 
     .spectrogram {
-      margin-top: 40px;
-
+      min-width: 500px;
+      width: calc(100% - 20px);
+      margin-top: 20px;
       .spectrogram-map {
         width: 100%;
-        height: 400px;
+        height: 370px;
         padding: 0 20px;
-        border: 1px solid #ccc;
+        // border: 1px solid #ccc;
       }
     }
     .time-domain-diagram {
       margin-top: 40px;
+      min-width: 500px;
+      width: calc(100% - 20px);
+      // width: calc(100vw - 440px);
       .time-domain-diagram-map {
+        width: calc(100vw - 440px);
+        // min-width:600px;
         width: 100%;
-        height: 400px;
+        height: 370px;
         padding: 0 20px;
-        border: 1px solid #ccc;
+        // border: 1px solid #ccc;
       }
     }
 
-    .waterfall-plot{
+    .waterfall-plot {
       margin-top: 40px;
-      .waterfall-plot-map{
-         width: 100%;
+      width: 100%;
+      .waterfall-plot-map {
+        min-width: 500px;
+        width: calc(100vw - 450px);
+        box-sizing: border-box;
         height: 600px;
         padding: 0 20px;
         border: 1px solid #ccc;

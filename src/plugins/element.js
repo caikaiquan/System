@@ -11,7 +11,13 @@ import {
     Option, 
     Table, 
     TableColumn, 
+    Radio,
+    RadioGroup,
 } from 'element-ui'
+
+import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
+
+Vue.component(CollapseTransition.name, CollapseTransition)
 
 Vue.use(Button)
 Vue.use(Input)
@@ -24,4 +30,6 @@ Vue.use(Select)
 Vue.use(Option)
 Vue.use(Table)
 Vue.use(TableColumn)
+Vue.use(RadioGroup)
+Vue.use(Radio)
 

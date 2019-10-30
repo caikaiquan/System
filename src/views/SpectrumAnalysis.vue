@@ -111,7 +111,7 @@ export default {
       tdOption: [], // 选择的通道数组
       timeList: [], // 可选的时间段
       timeRadio: "", // 当前选择的时间段
-      collapseShow: true,
+      collapseShow: false,
       spectrogramData: {}, // 时域图右侧显示
       diagramData: {} // 频谱图右侧显示
     };
@@ -194,9 +194,11 @@ export default {
             data = JSON.parse(data);
             if (data.DatePoint) {
               this.timeList = data.DatePoint.map(item => ({ value: item }));
+              this.collapseShow = true;
               console.log("获取到时间段列表", this.timeList);
             }
           } else {
+            this.collapseShow = false;
             console.log(res, data, "没有获取到时间段数据");
           }
         });
@@ -239,7 +241,8 @@ export default {
       );
       echarts.clear();
       if (!res) {
-        this.spectrogramData = {};
+        this.spectrogramData.DataCount = "";
+        this.spectrogramData.Rate = "";
         return;
       }
       let data = res.Points;
@@ -386,13 +389,15 @@ export default {
       }
     },
     drawTimeDomainDiagram(res) {
-      console.log(res)
       let echarts = this.$echarts.init(
         document.querySelector(".time-domain-diagram-map")
       );
       echarts.clear();
       if (!res) {
-        this.diagramData = {};
+        // this.diagramData = {};
+        this.diagramData.M = "";
+        this.diagramData.RotationRate = "";
+        this.diagramData.Temprature = "";
         return;
       }
       let data = res.Points;
@@ -924,8 +929,8 @@ export default {
         width: 190px;
       }
 
-      &.close{
-        width:30px;
+      &.close {
+        width: 30px;
       }
       & > i {
         position: absolute;
@@ -954,11 +959,11 @@ export default {
       float: right;
       overflow: auto;
       padding-left: 20px;
-      &.big{
+      &.big {
         width: calc(100vw - 230px);
       }
 
-      &.small{
+      &.small {
         width: calc(100vw - 390px);
       }
     }

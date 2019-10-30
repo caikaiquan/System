@@ -1,5 +1,11 @@
 <template>
   <div id="app">
+    <div class="minimize">
+      <i class="el-icon-minus"></i>
+    </div>
+    <div class="close-icon">
+      <i class="el-icon-close"></i>
+    </div>
     <router-view />
   </div>
 </template>
@@ -24,5 +30,25 @@ export default {
   height: 100vh;
   overflow: auto;
   @extend .scroll_bar;
+  .close-icon,
+  .minimize
+  {
+    width: 20px;
+    height: 20px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .minimize{
+    right: 50px;
+  }
 }
 </style>

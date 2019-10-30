@@ -1,6 +1,6 @@
 module.exports = {
     publicPath: './',           // 这里用的是相对路径
-    // outputDir: "salesFlow",     // 打包目录
+    outputDir: "dist",     // 打包目录
     devServer: {
         open: false,            //浏览器自动打开页面
         host: "0.0.0.0",        //如果是真机测试，就使用这个IP

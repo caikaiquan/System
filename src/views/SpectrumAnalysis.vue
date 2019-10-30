@@ -1,16 +1,16 @@
 <template>
   <div class="spectrum-analysis">
     <header>
-      <el-button :type="showStatus === 'sy'?'primary':''" @click="handleShowStatus('sy')">时域图</el-button>
-      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')">频谱图</el-button>
+      <el-button :type="showStatus === 'sy'?'primary':''" @click="handleShowStatus('sy')">频谱图</el-button>
+      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')">瀑布图</el-button>
     </header>
     <div class="containter">
-      <div class="left">
+      <div class="left open" :class="collapseShow?'open':'close'">
         <i class="iconfont icon-caidan" @click="collapseShow = !collapseShow"></i>
         <div class="time-list" :style="'height:'+timeList*24+'px'">
           <el-collapse-transition>
             <div v-show="collapseShow">
-              <el-radio-group v-model="timeRadio">
+              <el-radio-group v-model="timeRadio" @change="getDrawData">
                 <el-radio
                   :label="item.value"
                   v-for="(item,index) in timeList"
@@ -21,27 +21,27 @@
           </el-collapse-transition>
         </div>
       </div>
-      <div class="right">
+      <div class="right" :class="collapseShow?'small':'big'">
         <div class="select-box">
           <div class="cjq">
             采集器：
             <el-select v-model="cjqvalue" placeholder="请选择" @change="handleCollectorNote">
               <el-option
                 v-for="item in selectOption"
-                :key="item.CollectorNote"
+                :key="item.CollectorId"
                 :label="item.CollectorNote"
-                :value="item.CollectorNote"
+                :value="item.CollectorId"
               ></el-option>
             </el-select>
           </div>
           <div class="td">
             通道：
-            <el-select v-model="tdvalue" placeholder="请选择">
+            <el-select v-model="tdvalue" placeholder="请选择" @change="handleChangeTd">
               <el-option
                 v-for="item in tdOption"
-                :key="item.note"
-                :label="item.note"
-                :value="item.note"
+                :key="item.ChannelId"
+                :label="item.ChannelNote"
+                :value="item.ChannelId"
               ></el-option>
             </el-select>
           </div>
@@ -49,19 +49,46 @@
             时间
             <el-date-picker
               v-model="timeValue"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
               type="datetimerange"
               align="right"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              :default-time="['00:00:00', '23:59:59']"
+              :default-time="['12:00:00', '12:00:00']"
+              @change="getPointsOfDate"
             ></el-date-picker>
           </div>
         </div>
         <div class="spectrogram" v-show="showStatus === 'sy'">
           <div class="spectrogram-map"></div>
+          <div class="spectrogram-data side-data">
+            <div class="item" v-show="spectrogramData.DataCount">
+              <p>采样点数</p>
+              <p>{{spectrogramData.DataCount}}</p>
+            </div>
+            <div class="item" v-show="spectrogramData.Rate">
+              <p>采样频率</p>
+              <p>{{spectrogramData.Rate}}</p>
+            </div>
+          </div>
         </div>
         <div class="time-domain-diagram" v-show="showStatus === 'sy'">
           <div class="time-domain-diagram-map"></div>
+          <div class="diagram-data side-data">
+            <div class="item" v-show="diagramData.M">
+              <p>谱线数</p>
+              <p>{{diagramData.M}}</p>
+            </div>
+            <div class="item" v-show="diagramData.RotationRate">
+              <p>转速</p>
+              <p>{{diagramData.RotationRate}}</p>
+            </div>
+            <div class="item" v-show="diagramData.Temprature">
+              <p>温度</p>
+              <p>{{diagramData.Temprature}}</p>
+            </div>
+          </div>
         </div>
         <div class="waterfall-plot" v-show="showStatus === 'pp'">
           <div class="waterfall-plot-map"></div>
@@ -76,179 +103,147 @@ export default {
   data() {
     return {
       showStatus: "sy",
-      timeValue: "",
-      cjqvalue: "",
+      timeValue: "", // 选择的时间段
+      cjqvalue: "", // 采集器
       selectOption: null,
-      cjqOption: [
-        { value: "采集器1#" },
-        { value: "采集器2#" },
-        { value: "采集器3#" },
-        { value: "采集器4#" }
-      ],
-      tdvalue: "",
-      tdOption: [
-        // { value: "通道1" },
-        // { value: "通道2" },
-        // { value: "通道3" },
-        // { value: "通道4" }
-      ],
-      timeList: [
-        { value: "2019-10-10 10:10:00" },
-        { value: "2019-10-11 10:12:00" },
-        { value: "2019-10-12 10:14:00" },
-        { value: "2019-10-13 10:15:00" },
-        { value: "2019-10-14 10:16:00" },
-        { value: "2019-10-15 10:20:00" }
-      ],
-      timeRadio: "",
-      collapseShow: true
+      cjqOption: [], // 采集器数组
+      tdvalue: "", // 选择的通道
+      tdOption: [], // 选择的通道数组
+      timeList: [], // 可选的时间段
+      timeRadio: "", // 当前选择的时间段
+      collapseShow: true,
+      spectrogramData: {}, // 时域图右侧显示
+      diagramData: {} // 频谱图右侧显示
     };
   },
   mounted() {
-    this.drawSpectrogram();
-    this.drawTimeDomainDiagram();
+    // this.drawSpectrogram();
+    // this.drawTimeDomainDiagram();
     this.getGetAllCollector();
     // this.drawWaterfallPlot()
   },
   methods: {
+    // 获取所有采集器信息
     getGetAllCollector() {
-      if (false && YZ_GetAllCollector) {
-        YZ_GetAllCollector(res => {
-          // res =
+      let GetAllCollector = window["YZ_GetAllCollector"];
+      if (GetAllCollector) {
+        GetAllCollector({}, (res, data) => {
+          if (res == 0 && data) {
+            data = JSON.parse(data);
+            this.selectOption = data;
+            this.cjqvalue = data[0].CollectorId;
+            if (data.length && data[0].ChannelNotes.length) {
+              this.tdOption = data[0].ChannelNotes;
+              this.tdvalue = this.tdOption[0].ChannelId;
+            }
+          }
         });
-      } else {
-        let res = [
-          {
-            CollectorId: "C0001",
-            CollectorNote: "采集器1#",
-            Channel0Note: "通道0",
-            Channel1Note: "通道1",
-            Channel2Note: "通道2",
-            Channel3Note: "通道3"
-          },
-          {
-            CollectorId: "C0002",
-            CollectorNote: "采集器2#",
-            Channel0Note: "通道0",
-            Channel1Note: "通道1",
-            Channel2Note: "通道2",
-            Channel3Note: "通道3"
-          }
-        ];
-
-        let selectOption = [
-          {
-            CollectorId: "C0001",
-            CollectorNote: "采集器1#",
-            ChannelNotes: [
-              { note: "通道0" },
-              { note: "通道1" },
-              { note: "通道2" },
-              { note: "通道3" }
-            ]
-          },
-          {
-            CollectorId: "C0002",
-            CollectorNote: "采集器2#",
-            ChannelNotes: [
-              { note: "通道0" },
-              { note: "通道1" },
-              { note: "通道2" },
-              { note: "通道3" }
-            ]
-          }
-        ];
-
-        this.selectOption = selectOption;
       }
     },
+
     handleCollectorNote() {
       this.tdOption = [];
-      let tdOptionArr = this.selectOption.filter(
-        item => item.CollectorNote === this.cjqvalue
+      this.tdvalue = "";
+      let [filtertdOption] = this.selectOption.filter(
+        item => item.CollectorId === this.cjqvalue
       );
-
-      if (tdOptionArr.length) {
-        this.tdOption = tdOptionArr[0].ChannelNotes;
+      if (filtertdOption) {
+        this.tdOption = filtertdOption.ChannelNotes;
+        this.tdvalue = this.tdOption[0].ChannelId;
+      }
+      this.timeList = [];
+      this.timeRadio = "";
+      this.drawSpectrogram();
+      this.drawTimeDomainDiagram();
+      if (this.timeValue && this.timeValue.length) {
+        this.getPointsOfDate();
+        console.log("这里是切换采集器触发获取时间段");
       }
     },
-    drawSpectrogram() {
+
+    handleChangeTd() {
+      this.timeList = [];
+      this.timeRadio = "";
+      this.drawSpectrogram();
+      this.drawTimeDomainDiagram();
+      if (this.timeValue && this.timeValue.length) {
+        this.getPointsOfDate();
+        console.log("这里是切换通道");
+      }
+    },
+
+    // 获取指定采集器，指定通道，指定时间段所有采集数据时间点
+    getPointsOfDate() {
+      if (!this.timeValue) {
+        this.timeList = [];
+        this.timeRadio = "";
+        this.drawSpectrogram();
+        this.drawTimeDomainDiagram();
+        return;
+      }
+      let ThePointsOfDate = window["YZ_ThePointsOfDate"];
+      if (ThePointsOfDate) {
+        let option = {
+          CollectorId: this.cjqvalue,
+          ChannelId: this.tdvalue,
+          StartDate: this.timeValue[0],
+          EndDate: this.timeValue[1]
+        };
+        ThePointsOfDate(option, (res, data) => {
+          if (res == 0 && data) {
+            data = JSON.parse(data);
+            if (data.DatePoint) {
+              this.timeList = data.DatePoint.map(item => ({ value: item }));
+              console.log("获取到时间段列表", this.timeList);
+            }
+          } else {
+            console.log(res, data, "没有获取到时间段数据");
+          }
+        });
+      }
+    },
+    // 切换radio的时间选择
+    getDrawData() {
+      this.getSpectrogram();
+      this.getDomainDiagram();
+    },
+    // 获取时域图制图数据
+    getSpectrogram() {
+      this.spectrogramData = {};
+      console.log(this.timeRadio);
+      let GetTimeDomainPlotData = window["YZG_GetTimeDomainPlotData"];
+      let data;
+      if (GetTimeDomainPlotData) {
+        let option = {
+          CollectorId: this.cjqvalue,
+          ChannelId: this.tdvalue,
+          DatePoint: this.timeRadio
+        };
+        GetTimeDomainPlotData(option, (res, data) => {
+          if (res == 0 && data) {
+            data = JSON.parse(data);
+            this.drawSpectrogram(data);
+            this.spectrogramData.DataCount = data.DataCount;
+            this.spectrogramData.Rate = data.Rate;
+            this.$forceUpdate();
+          } else {
+            this.drawSpectrogram();
+          }
+        });
+      }
+    },
+    // 绘制时域图
+    drawSpectrogram(res) {
       let echarts = this.$echarts.init(
         document.querySelector(".spectrogram-map")
       );
       echarts.clear();
-      let data = [
-        ["2000-06-05", 116],
-        ["2000-06-06", 129],
-        ["2000-06-07", 135],
-        ["2000-06-08", 86],
-        ["2000-06-09", 73],
-        ["2000-06-10", 85],
-        ["2000-06-11", 73],
-        ["2000-06-12", 68],
-        ["2000-06-13", 92],
-        ["2000-06-14", 130],
-        ["2000-06-15", 245],
-        ["2000-06-16", 139],
-        ["2000-06-17", 115],
-        ["2000-06-18", 111],
-        ["2000-06-19", 309],
-        ["2000-06-20", 206],
-        ["2000-06-21", 137],
-        ["2000-06-22", 128],
-        ["2000-06-23", 85],
-        ["2000-06-24", 94],
-        ["2000-06-25", 71],
-        ["2000-06-26", 106],
-        ["2000-06-27", 84],
-        ["2000-06-28", 93],
-        ["2000-06-29", 85],
-        ["2000-06-30", 73],
-        ["2000-07-01", 83],
-        ["2000-07-02", 125],
-        ["2000-07-03", 107],
-        ["2000-07-04", 82],
-        ["2000-07-05", 44],
-        ["2000-07-06", 72],
-        ["2000-07-07", 106],
-        ["2000-07-08", 107],
-        ["2000-07-09", 66],
-        ["2000-07-10", 91],
-        ["2000-07-11", 92],
-        ["2000-07-12", 113],
-        ["2000-07-13", 107],
-        ["2000-07-14", 131],
-        ["2000-07-15", 111],
-        ["2000-07-16", 64],
-        ["2000-07-17", 69],
-        ["2000-07-18", 88],
-        ["2000-07-19", 77],
-        ["2000-07-20", 83],
-        ["2000-07-21", 111],
-        ["2000-07-22", 57],
-        ["2000-07-23", 55],
-        ["2000-07-24", 60]
-      ];
-
-      let dateList = data.map(function(item) {
-        return item[0];
-      });
-      let valueList = data.map(function(item) {
-        return item[1];
-      });
-
+      if (!res) {
+        this.spectrogramData = {};
+        return;
+      }
+      let data = res.Points;
       let option = {
-        // Make gradient line here
-        visualMap: [
-          {
-            show: false,
-            type: "continuous",
-            seriesIndex: 0,
-            min: 0,
-            max: 400
-          }
-        ],
-
         title: [
           {
             left: "center",
@@ -264,14 +259,32 @@ export default {
         tooltip: {
           trigger: "axis"
         },
-        xAxis: [
-          {
-            data: dateList
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
           }
-        ],
-        yAxis: [
+        },
+        // toolbox: {
+        //   left: "center",
+        //   feature: {
+        //     dataZoom: {
+        //       yAxisIndex: "none"
+        //     },
+        //     restore: {},
+        //     saveAsImage: {}
+        //   }
+        // },
+        dataZoom: [
           {
-            splitLine: { show: false }
+            startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
           }
         ],
         grid: [
@@ -280,22 +293,110 @@ export default {
             right: "40"
           }
         ],
-        series: [
-          {
-            type: "line",
-            showSymbol: false,
-            data: valueList
+        // visualMap: {
+        //   top: 10,
+        //   left: -40,
+        //   pieces: [
+        //     {
+        //       gt: 0,
+        //       lte: 50,
+        //       color: "#096"
+        //     },
+        //     {
+        //       gt: 50,
+        //       lte: 100,
+        //       color: "#ffde33"
+        //     },
+        //     {
+        //       gt: 100,
+        //       lte: 150,
+        //       color: "#ff9933"
+        //     },
+        //     {
+        //       gt: 150,
+        //       lte: 200,
+        //       color: "#cc0033"
+        //     },
+        //     {
+        //       gt: 200,
+        //       lte: 300,
+        //       color: "#660099"
+        //     },
+        //     {
+        //       gt: 300,
+        //       color: "#7e0023"
+        //     }
+        //   ],
+        //   outOfRange: {
+        //     color: "#999"
+        //   }
+        // },
+        series: {
+          name: "Beijing AQI",
+          type: "line",
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
           }
-        ]
+        }
       };
       echarts.setOption(option);
     },
-    drawTimeDomainDiagram() {
+    // 获取频谱图数据
+    getDomainDiagram() {
+      this.diagramData = {};
+      let GetSpectrogramData = window["YZG_GetSpectrogramData"];
+      if (GetSpectrogramData) {
+        let option = {
+          CollectorId: this.cjqvalue,
+          ChannelId: this.tdvalue,
+          DatePoint: this.timeRadio
+        };
+        GetSpectrogramData(option, (res, data) => {
+          if (data && res == 0) {
+            data = JSON.parse(data);
+            this.drawTimeDomainDiagram(data);
+            this.diagramData.M = data.M;
+            this.diagramData.RotationRate = data.RotationRate;
+            this.diagramData.Temprature = data.Temprature;
+            this.$forceUpdate();
+          } else {
+            this.drawTimeDomainDiagram();
+          }
+        });
+      }
+    },
+    drawTimeDomainDiagram(res) {
+      console.log(res)
       let echarts = this.$echarts.init(
         document.querySelector(".time-domain-diagram-map")
       );
       echarts.clear();
-      let data = [
+      if (!res) {
+        this.diagramData = {};
+        return;
+      }
+      let data = res.Points;
+      /* let data = [
         ["2000-06-05", 116],
         ["2000-06-06", 129],
         ["2000-06-07", 135],
@@ -405,6 +506,123 @@ export default {
             data: valueList
           }
         ]
+      }; */
+
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "频谱图",
+            textStyle: {
+              fontSize: "26",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        // toolbox: {
+        //   left: "center",
+        //   feature: {
+        //     dataZoom: {
+        //       yAxisIndex: "none"
+        //     },
+        //     restore: {},
+        //     saveAsImage: {}
+        //   }
+        // },
+        dataZoom: [
+          {
+            startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        // visualMap: {
+        //   top: 10,
+        //   left: -40,
+        //   pieces: [
+        //     {
+        //       gt: 0,
+        //       lte: 50,
+        //       color: "#096"
+        //     },
+        //     {
+        //       gt: 50,
+        //       lte: 100,
+        //       color: "#ffde33"
+        //     },
+        //     {
+        //       gt: 100,
+        //       lte: 150,
+        //       color: "#ff9933"
+        //     },
+        //     {
+        //       gt: 150,
+        //       lte: 200,
+        //       color: "#cc0033"
+        //     },
+        //     {
+        //       gt: 200,
+        //       lte: 300,
+        //       color: "#660099"
+        //     },
+        //     {
+        //       gt: 300,
+        //       color: "#7e0023"
+        //     }
+        //   ],
+        //   outOfRange: {
+        //     color: "#999"
+        //   }
+        // },
+        series: {
+          name: "Beijing AQI",
+          type: "line",
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
       };
       echarts.setOption(option);
     },
@@ -698,16 +916,22 @@ export default {
   .containter {
     width: calc(100vw - 200px);
     .left {
-      width: 190px;
       float: left;
       height: calc(100vh - 60px);
       background: #fff;
       position: relative;
+      &.open {
+        width: 190px;
+      }
+
+      &.close{
+        width:30px;
+      }
       & > i {
         position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translate(0, -50%);
+        top: 200px;
+        right: 5px;
+        transform: rotate(90deg);
         cursor: pointer;
       }
 
@@ -730,26 +954,61 @@ export default {
       float: right;
       overflow: auto;
       padding-left: 20px;
+      &.big{
+        width: calc(100vw - 230px);
+      }
+
+      &.small{
+        width: calc(100vw - 390px);
+      }
     }
     .select-box {
       min-width: 500px;
       display: flex;
       margin-top: 20px;
-      .cjq{
-        .el-select{
-          width: 100px;
+      .cjq {
+        .el-select {
+          width: 110px;
         }
       }
       .td {
         margin-left: 20px;
-        .el-select{
-          width: 100px;
+        .el-select {
+          width: 110px;
         }
       }
       .time {
         margin-left: 20px;
-        .el-date-editor{
+        .el-date-editor {
           margin-left: 10px;
+          .el-range-input::placeholder {
+            line-height: 18px;
+          }
+        }
+      }
+    }
+
+    .side-data {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      width: 100px;
+      height: 300px;
+      .item {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        & + .item {
+          margin-top: 20px;
+        }
+        p {
+          height: 30px;
+          line-height: 30px;
+          text-align: center;
+          & + p {
+            border-top: 1px solid #999;
+          }
         }
       }
     }
@@ -758,8 +1017,9 @@ export default {
       min-width: 500px;
       width: calc(100% - 20px);
       margin-top: 20px;
+      position: relative;
       .spectrogram-map {
-        width: 100%;
+        width: calc(100% - 80px);
         height: 370px;
         padding: 0 20px;
         // border: 1px solid #ccc;
@@ -770,10 +1030,10 @@ export default {
       min-width: 500px;
       width: calc(100% - 20px);
       // width: calc(100vw - 440px);
+      position: relative;
       .time-domain-diagram-map {
-        width: calc(100vw - 440px);
         // min-width:600px;
-        width: 100%;
+        width: calc(100% - 80px);
         height: 370px;
         padding: 0 20px;
         // border: 1px solid #ccc;

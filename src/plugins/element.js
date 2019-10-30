@@ -13,6 +13,8 @@ import {
     TableColumn, 
     Radio,
     RadioGroup,
+    CheckboxGroup,
+    Checkbox
 } from 'element-ui'
 
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
@@ -32,4 +34,8 @@ Vue.use(Table)
 Vue.use(TableColumn)
 Vue.use(RadioGroup)
 Vue.use(Radio)
+Vue.use(CheckboxGroup)
+Vue.use(Checkbox)
+
+
 

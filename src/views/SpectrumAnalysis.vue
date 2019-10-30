@@ -130,11 +130,15 @@ export default {
         GetAllCollector({}, (res, data) => {
           if (res == 0 && data) {
             data = JSON.parse(data);
+            console.log("获取采集器数据", data);
             this.selectOption = data;
             this.cjqvalue = data[0].CollectorId;
+            console.log("默认第一个选择采集器", this.cjqvalue);
             if (data.length && data[0].ChannelNotes.length) {
               this.tdOption = data[0].ChannelNotes;
               this.tdvalue = this.tdOption[0].ChannelId;
+              console.log("设置通道数据", this.tdOption);
+              console.log("默认选中第一个通道", this.tdvalue);
             }
           }
         });
@@ -192,6 +196,7 @@ export default {
         ThePointsOfDate(option, (res, data) => {
           if (res == 0 && data) {
             data = JSON.parse(data);
+            console.log("根据筛选条件获取时间段", data);
             if (data.DatePoint) {
               this.timeList = data.DatePoint.map(item => ({ value: item }));
               this.collapseShow = true;
@@ -213,7 +218,7 @@ export default {
     getSpectrogram() {
       this.spectrogramData = {};
       console.log(this.timeRadio);
-      let GetTimeDomainPlotData = window["YZG_GetTimeDomainPlotData"];
+      let GetTimeDomainPlotData = window["YZ_GetTimeDomainPlotData"];
       let data;
       if (GetTimeDomainPlotData) {
         let option = {
@@ -246,6 +251,7 @@ export default {
         return;
       }
       let data = res.Points;
+      // console.log("绘制时域图的制图数据", JSON.stringify(data));
       let option = {
         title: [
           {
@@ -283,9 +289,9 @@ export default {
         //   }
         // },
         dataZoom: [
-          {
+          /* {
             startValue: "2014-06-01"
-          },
+          }, */
           {
             type: "inside"
           }
@@ -335,7 +341,7 @@ export default {
         //   }
         // },
         series: {
-          name: "Beijing AQI",
+          name: "G",
           type: "line",
           data: data.map(function(item) {
             return item[1];
@@ -367,7 +373,7 @@ export default {
     // 获取频谱图数据
     getDomainDiagram() {
       this.diagramData = {};
-      let GetSpectrogramData = window["YZG_GetSpectrogramData"];
+      let GetSpectrogramData = window["YZ_GetSpectrogramData"];
       if (GetSpectrogramData) {
         let option = {
           CollectorId: this.cjqvalue,
@@ -401,117 +407,6 @@ export default {
         return;
       }
       let data = res.Points;
-      /* let data = [
-        ["2000-06-05", 116],
-        ["2000-06-06", 129],
-        ["2000-06-07", 135],
-        ["2000-06-08", 86],
-        ["2000-06-09", 73],
-        ["2000-06-10", 85],
-        ["2000-06-11", 73],
-        ["2000-06-12", 68],
-        ["2000-06-13", 92],
-        ["2000-06-14", 130],
-        ["2000-06-15", 245],
-        ["2000-06-16", 139],
-        ["2000-06-17", 115],
-        ["2000-06-18", 111],
-        ["2000-06-19", 309],
-        ["2000-06-20", 206],
-        ["2000-06-21", 137],
-        ["2000-06-22", 128],
-        ["2000-06-23", 85],
-        ["2000-06-24", 94],
-        ["2000-06-25", 71],
-        ["2000-06-26", 106],
-        ["2000-06-27", 84],
-        ["2000-06-28", 93],
-        ["2000-06-29", 85],
-        ["2000-06-30", 73],
-        ["2000-07-01", 83],
-        ["2000-07-02", 125],
-        ["2000-07-03", 107],
-        ["2000-07-04", 82],
-        ["2000-07-05", 44],
-        ["2000-07-06", 72],
-        ["2000-07-07", 106],
-        ["2000-07-08", 107],
-        ["2000-07-09", 66],
-        ["2000-07-10", 91],
-        ["2000-07-11", 92],
-        ["2000-07-12", 113],
-        ["2000-07-13", 107],
-        ["2000-07-14", 131],
-        ["2000-07-15", 111],
-        ["2000-07-16", 64],
-        ["2000-07-17", 69],
-        ["2000-07-18", 88],
-        ["2000-07-19", 77],
-        ["2000-07-20", 83],
-        ["2000-07-21", 111],
-        ["2000-07-22", 57],
-        ["2000-07-23", 55],
-        ["2000-07-24", 60]
-      ];
-
-      let dateList = data.map(function(item) {
-        return item[0];
-      });
-      let valueList = data.map(function(item) {
-        return item[1];
-      });
-
-      let option = {
-        // Make gradient line here
-        visualMap: [
-          {
-            show: false,
-            type: "continuous",
-            seriesIndex: 0,
-            min: 0,
-            max: 400
-          }
-        ],
-
-        title: [
-          {
-            left: "center",
-            top: 20,
-            text: "频谱图",
-            textStyle: {
-              fontSize: "26",
-              fontWeight: 600,
-              color: "#409EFF"
-            }
-          }
-        ],
-        tooltip: {
-          trigger: "axis"
-        },
-        xAxis: [
-          {
-            data: dateList
-          }
-        ],
-        yAxis: [
-          {
-            splitLine: { show: false }
-          }
-        ],
-        grid: [
-          {
-            left: "40",
-            right: "40"
-          }
-        ],
-        series: [
-          {
-            type: "line",
-            showSymbol: false,
-            data: valueList
-          }
-        ]
-      }; */
 
       let option = {
         title: [
@@ -550,9 +445,9 @@ export default {
         //   }
         // },
         dataZoom: [
-          {
-            startValue: "2014-06-01"
-          },
+          /* {
+            // startValue: "2014-06-01"
+          }, */
           {
             type: "inside"
           }
@@ -602,7 +497,7 @@ export default {
         //   }
         // },
         series: {
-          name: "Beijing AQI",
+          name: "G",
           type: "line",
           data: data.map(function(item) {
             return item[1];

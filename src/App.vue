@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <div class="minimize">
-      <i class="el-icon-minus"></i>
+      <i class="el-icon-minus" @click="handleMini"></i>
     </div>
     <div class="close-icon">
-      <i class="el-icon-close"></i>
+      <i class="el-icon-close" @click="handleClose"></i>
     </div>
     <router-view />
   </div>
@@ -19,7 +19,19 @@ export default {
     this.saveWinWidth(winWidth);
   },
   methods:{
-    ...mapActions(['saveWinWidth'])
+    ...mapActions(['saveWinWidth']),
+    handleMini(){
+      let YZ_Min = window['YZ_Min'];
+      if(YZ_Min){
+        YZ_Min()
+      }
+    },
+    handleClose(){
+      let YZ_Exit = window['YZ_Exit'];
+      if(YZ_Exit){
+        YZ_Exit()
+      }
+    }
   }
 }
 </script>

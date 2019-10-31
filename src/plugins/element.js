@@ -14,7 +14,12 @@ import {
     Radio,
     RadioGroup,
     CheckboxGroup,
-    Checkbox
+    Checkbox,
+    Switch,
+    InputNumber,
+    Dialog,
+    Form,
+    FormItem
 } from 'element-ui'
 
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
@@ -36,6 +41,11 @@ Vue.use(RadioGroup)
 Vue.use(Radio)
 Vue.use(CheckboxGroup)
 Vue.use(Checkbox)
+Vue.use(Switch)
+Vue.use(InputNumber)
+Vue.use(Dialog)
+Vue.use(Form)
+Vue.use(FormItem)
 
 
 

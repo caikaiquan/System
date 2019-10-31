@@ -1,0 +1,94 @@
+接口调用：YZ_GetAllCollector({},function(res,data){
+      console.log('接口返回:',res,data)
+});
+
+接口返回: 0 [
+   
+		{
+      
+			"ChannelNotes" : [
+         
+						{
+            "Channel0Note" : "通道0"
+         },
+         
+						{
+            "Channel1Note" : "通道1"
+         },
+         
+						{
+            "Channel2Note" : "通道2"
+         },
+         
+						{
+            "Channel3Note" : "通道3"
+         }
+      
+					 ],
+      		
+			 "CollectorId" : "C0001",
+      
+			 "CollectorIp" : "192.168.0.18",
+      
+		       "CollectorNote" : "采集器1#",
+      
+		       "CollectorRate" : 128000,
+      
+			   "DataCount" : 1024,
+      
+		    "IEPESensitivity0" : 1000,
+		    "IEPESensitivity1" : 1000,
+		    "IEPESensitivity2" : 1000,
+		    "IEPESensitivity3" : 1000,      
+		     "OpenRotaionRate" : 0,
+      
+		       "StoreIntervel" : 10
+   
+		},
+   
+		{
+      
+			"ChannelNotes" : [
+         
+						{
+            "Channel0Note" : "通道0"
+         },
+         
+						{
+            "Channel1Note" : "通道1"
+         },
+         
+						{
+            "Channel2Note" : "通道2"
+         },
+         
+						{
+            "Channel3Note" : "通道3"
+         }
+      
+					 ],
+      
+			 "CollectorId" : "C0002",
+      
+			 "CollectorIp" : "192.168.0.11",
+      
+		       "CollectorNote" : "采集器2#",
+      
+		       "CollectorRate" : 9600,
+      
+			   "DataCount" : 2048,
+      
+		     "IEPESensitivity" : 1000,
+      
+		     "OpenRotaionRate" : 1,
+      
+		       "StoreIntervel" : 15
+   
+		}
+	     
+]
+说明：
+返回值带一个整数标识一些状态
+0 成功且有数据  
+1 查询数据库出错  
+2 没有数据

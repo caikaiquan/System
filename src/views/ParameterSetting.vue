@@ -2,7 +2,7 @@
   <div class="parameter-setting">
     <div class="container">
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="ip" label="IP"></el-table-column>
+        <!-- <el-table-column prop="ip" label="IP"></el-table-column>
         <el-table-column prop="pl" label="采用频率Hz"></el-table-column>
         <el-table-column prop="cyds" label="采样点数"></el-table-column>
         <el-table-column prop="bcjg" label="保存间隔（s）"></el-table-column>
@@ -23,8 +23,18 @@
               <span class="handle-save">保存</span>
             </p>
           </template>
+        </el-table-column> -->
+        <el-table-column prop="ip" label="IP">
+          <template slot-scope='scope'>
+            <p>采集器ID</p>
+            <el-input v-model="scope.row" placeholder="请输入内容"></el-input>
+          </template>
         </el-table-column>
       </el-table>
+    </div>
+
+    <div class="add-btn">
+      添加采集器
     </div>
   </div>
 </template>
@@ -73,6 +83,7 @@ export default {
       // ],
       tableData: [
         {
+          number:"",
           ip: "192.186.0.100",
           pl: "128000",
           cyds: "1024",
@@ -127,5 +138,45 @@ export default {
       }
     }
   }
+
+  .add-btn{
+    width: 200px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 3px;
+    margin: 20px 20px 0 auto;
+    color: #fff;
+    background: rgb(240, 59, 59);
+    cursor: pointer;
+    transition: all 0.25s;
+    &:hover{
+      background: rgba(240, 59, 59,0.8);
+    }
+  }
 }
 </style>
+
+
+
+/* 
+采集器ID  C0001
+备注 采集器1#
+IP  192.168.0.155
+采样频率  128000
+采样点数  1024
+保存间隔（s） 10
+转速采集  开
+通道说明   0. 通道0    1. 通道1   2. 通道2    3. 通道3
+IEPE灵敏度   1000 mv/g
+保存  保存    
+删除  删除
+
+
+
+
+ 
+
+
+
+ */

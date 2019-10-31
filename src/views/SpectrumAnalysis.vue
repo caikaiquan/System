@@ -1,14 +1,14 @@
 <template>
   <div class="spectrum-analysis">
     <header>
-      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')">频谱图</el-button>
-      <el-button :type="showStatus === 'pb'?'primary':''" @click="handleShowStatus('pb')">瀑布图</el-button>
+      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')" size="small">频谱图</el-button>
+      <el-button :type="showStatus === 'pb'?'primary':''" @click="handleShowStatus('pb')" size="small">瀑布图</el-button>
     </header>
     <div class="containter">
       <div class="left open" :class="collapseShow?'open':'close'">
         <i class="iconfont icon-caidan" @click="collapseShow = !collapseShow"></i>
         <div class="time-list" :style="'height:'+timeList*24+'px'">
-          <el-collapse-transition >
+          <el-collapse-transition>
             <div v-show="collapseShow && showStatus === 'pp'">
               <el-radio-group v-model="timeRadio" @change="getDrawData">
                 <el-radio
@@ -19,10 +19,15 @@
               </el-radio-group>
             </div>
           </el-collapse-transition>
-          <el-collapse-transition >
+          <el-collapse-transition>
             <div v-show="collapseShow && showStatus === 'pb'">
               <el-checkbox-group v-model="checkList" @change="handleChangeCheckList">
-                <el-checkbox :label="item.value" v-for="(item,index) in timeList" :key='index' :value='item.value'></el-checkbox>
+                <el-checkbox
+                  :label="item.value"
+                  v-for="(item,index) in timeList"
+                  :key="index"
+                  :value="item.value"
+                ></el-checkbox>
               </el-checkbox-group>
             </div>
           </el-collapse-transition>
@@ -109,7 +114,7 @@
 export default {
   data() {
     return {
-      showStatus: "pb",
+      showStatus: "pp",
       timeValue: "", // 选择的时间段
       cjqvalue: "", // 采集器
       selectOption: null,
@@ -127,14 +132,32 @@ export default {
       collapseShow: false,
       spectrogramData: {}, // 时域图右侧显示
       diagramData: {}, // 频谱图右侧显示
-      checkList:[], // 瀑布图日期复选数组
+      checkList: [], // 瀑布图日期复选数组
+      // fallPlotEachrt:null,
+      pbRate:1,   // 屏幕尺寸1920 是1 
+      syEchart:null, // 时域图的echart对象
+      ppEchart:null, // 频谱图的echart对象
+      pbEachrt:null, // 瀑布图的echart对象
     };
+  },
+  created(){
+    // 计算瀑布图的缩放尺寸
+    let winWidth = window.innerWidth || document.body.clientWidth;
+    this.pbRate = winWidth*1.2/1920;
+    if(winWidth > 1600){
+      this.pbRate = winWidth/1920;
+    }else if(winWidth > 1400){
+      this.pbRate = winWidth*1.35/1920;
+    }else if(winWidth > 1300){
+      this.pbRate = winWidth*1.5/1920;
+    }else{
+      this.pbRate = winWidth*1.8/1920;
+    }
   },
   mounted() {
     // this.drawSpectrogram();
     // this.drawTimeDomainDiagram();
     this.getGetAllCollector();
-    // this.drawWaterfallPlot()
   },
   methods: {
     // 获取所有采集器信息
@@ -259,6 +282,7 @@ export default {
         document.querySelector(".spectrogram-map")
       );
       echarts.clear();
+      this.syEchart = null;
       if (!res) {
         this.spectrogramData.DataCount = "";
         this.spectrogramData.Rate = "";
@@ -273,7 +297,7 @@ export default {
             top: 20,
             text: "时域图",
             textStyle: {
-              fontSize: "26",
+              fontSize: "15",
               fontWeight: 600,
               color: "#409EFF"
             }
@@ -292,19 +316,20 @@ export default {
             show: false
           }
         },
-        // toolbox: {
-        //   left: "center",
-        //   feature: {
-        //     dataZoom: {
-        //       yAxisIndex: "none"
-        //     },
-        //     restore: {},
-        //     saveAsImage: {}
-        //   }
-        // },
+        /* toolbox: {
+          left: "center",
+          feature: {
+            dataZoom: {
+              yAxisIndex: "none"
+            },
+            restore: {},
+            saveAsImage: {}
+          }
+        }, */
         dataZoom: [
           {
-            // startValue: "2014-06-01"
+            // startValue: "2014-06-01",
+            // endValue:"2012-09-01"
           },
           {
             type: "inside"
@@ -316,44 +341,44 @@ export default {
             right: "40"
           }
         ],
-        // visualMap: {
-        //   top: 10,
-        //   left: -40,
-        //   pieces: [
-        //     {
-        //       gt: 0,
-        //       lte: 50,
-        //       color: "#096"
-        //     },
-        //     {
-        //       gt: 50,
-        //       lte: 100,
-        //       color: "#ffde33"
-        //     },
-        //     {
-        //       gt: 100,
-        //       lte: 150,
-        //       color: "#ff9933"
-        //     },
-        //     {
-        //       gt: 150,
-        //       lte: 200,
-        //       color: "#cc0033"
-        //     },
-        //     {
-        //       gt: 200,
-        //       lte: 300,
-        //       color: "#660099"
-        //     },
-        //     {
-        //       gt: 300,
-        //       color: "#7e0023"
-        //     }
-        //   ],
-        //   outOfRange: {
-        //     color: "#999"
-        //   }
-        // },
+        /* visualMap: {
+          top: 10,
+          left: -40,
+          pieces: [
+            {
+              gt: 0,
+              lte: 50,
+              color: "#096"
+            },
+            {
+              gt: 50,
+              lte: 100,
+              color: "#ffde33"
+            },
+            {
+              gt: 100,
+              lte: 150,
+              color: "#ff9933"
+            },
+            {
+              gt: 150,
+              lte: 200,
+              color: "#cc0033"
+            },
+            {
+              gt: 200,
+              lte: 300,
+              color: "#660099"
+            },
+            {
+              gt: 300,
+              color: "#7e0023"
+            }
+          ],
+          outOfRange: {
+            color: "#999"
+          }
+        }, */
         series: {
           name: "G",
           type: "line",
@@ -382,6 +407,7 @@ export default {
           }
         }
       };
+      this.syEchart = echarts;
       echarts.setOption(option);
     },
     // 获取频谱图数据
@@ -413,6 +439,7 @@ export default {
         document.querySelector(".time-domain-diagram-map")
       );
       echarts.clear();
+      this.ppEchart = null;
       if (!res) {
         // this.diagramData = {};
         this.diagramData.M = "";
@@ -429,7 +456,7 @@ export default {
             top: 20,
             text: "频谱图",
             textStyle: {
-              fontSize: "26",
+              fontSize: "15",
               fontWeight: 600,
               color: "#409EFF"
             }
@@ -459,9 +486,9 @@ export default {
         //   }
         // },
         dataZoom: [
-           {
+          {
             // startValue: "2014-06-01"
-          }, 
+          },
           {
             type: "inside"
           }
@@ -538,37 +565,64 @@ export default {
           }
         }
       };
+
+      this.ppEchart = echarts;
       echarts.setOption(option);
     },
     // 复选框勾选
-    handleChangeCheckList(){
-      debugger
+    handleChangeCheckList() {
+      debugger;
       console.log(this.checkList);
-      if(!this.checkList.length){
-        this.drawWaterfallPlot()
-        return
+      if (!this.checkList.length) {
+        this.drawWaterfallPlot();
+        return;
       }
 
       // this.drawWaterfallPlot('res');
-      let GetSpectrogramData = window["YZ_GetSpectrogramData"];
-      if (false && GetSpectrogramData) {
+      let GetWaterfallPlotData = window["YZ_GetWaterfallPlotData"];
+      if (GetWaterfallPlotData) {
+        debugger;
         let option = {
           CollectorId: this.cjqvalue,
           ChannelId: this.tdvalue,
-          DatePoint: this.checkList
+          JsonDatePoint: JSON.stringify(this.checkList)
         };
-        GetSpectrogramData(option, (res, data) => {
+        console.log("chanshu", option);
+        GetWaterfallPlotData(option, (res, data) => {
+          if (res == 0 && data ) {
+            data = JSON.parse(data);
+            console.log("获取到瀑布图制图数据", res, data);
+            data = data.map(item => {
+              item.Points = item.Points.map(v => {
+                let [a, c] = v;
+                v = [a, item.DatePoint, c];
+                return v;
+              });
+              return item;
+            });
+            console.log("获取到瀑布图制图数据", res, data);
+            this.drawWaterfallPlot(data);
+          }
+        });
+      } else {
+        let data = require("./1.json");
+        console.log("获取到瀑布图数据", data);
+        data.forEach(item => {
+          item.Points = item.Points.map(v => {
+            let [a, b, c] = v;
+            if (c < 1) {
+              c = Math.ceil(Math.random() * 200);
+            }
+            v = [a, b, c];
+            return v;
+          });
+        });
 
-        })
-      }else{
-        let data = require('./1.json');
-        console.log('获取到瀑布图数据',data)
-        if(this.checkList.length === 1){
-            data = data.filter((item,index) => index === 0)
+        console.log(JSON.stringify(data));
+        if (this.checkList.length === 1) {
+          data = data.filter((item, index) => index === 0);
         }
-        debugger
         this.drawWaterfallPlot(data);
-
       }
     },
     // 获取瀑布图制图数据
@@ -578,178 +632,186 @@ export default {
         document.querySelector(".waterfall-plot-map")
       );
       echarts.clear();
-      if(!res){
+      if (!res) {
         return;
       }
 
 
-      // var hours = [1, 2, 3, 4, 5, 6, 7];
-      // var days = ["A", "B", "C", "D", "E", "F"];
-      // var data1 = [
-      //   [1, 0, 0.1],
-      //   [2, 0, 0.2],
-      //   [3, 0, 0.0],
-      //   [4, 0, 0.2],
-      //   [5, 0, 0.4],
-      //   [6, 0, 0.5],
-      //   [7, 0, 0.0],
-      //   [8, 0, 0.4],
-      //   [9, 0, 0.2],
-      //   [10, 0, 0.5],
-      //   [11, 0, 0.9],
-      //   [12, 0, 0.5],
-      //   [13, 0, 0.3],
-      //   [14, 0, 0.2],
-      //   [15, 0, 0.0],
-      //   [16, 0, 0.5],
-      //   [17, 0, 0.1],
-      //   [18, 0, 0.2],
-      //   [19, 0, 0.0],
-      //   [20, 0, 0.2],
-      //   [21, 0, 0.4],
-      //   [22, 0, 0.5],
-      //   [23, 0, 0.0],
-      //   [24, 0, 0.4],
-      //   [25, 0, 0.2],
-      //   [26, 0, 0.5],
-      //   [27, 0, 0.0],
-      //   [28, 0, 0.5],
-      //   [29, 0, 0.3],
-      //   [30, 0, 0.2],
-      //   [31, 0, 0.0],
-      //   [32, 0, 0.5]
-      // ];
-      // var data2 = [
-      //   [1, 2, 0.1],
-      //   [2, 2, 0.4],
-      //   [3, 2, 0.3],
-      //   [4, 2, 0.5],
-      //   [5, 2, 0.4],
-      //   [6, 2, 0.5],
-      //   [7, 2, 0.4],
-      //   [8, 2, 0.3],
-      //   [9, 2, 0.2],
-      //   [10, 2, 0.2],
-      //   [11, 2, 0.0],
-      //   [12, 2, 0.5],
-      //   [13, 2, 0.2],
-      //   [14, 2, 0.2],
-      //   [15, 2, 0.1],
-      //   [16, 2, 0.5],
-      //   [17, 2, 0.1],
-      //   [18, 2, 0.4],
-      //   [19, 2, 0.3],
-      //   [20, 2, 0.5],
-      //   [21, 2, 0.4],
-      //   [22, 2, 0.5],
-      //   [23, 2, 0.4],
-      //   [24, 2, 0.3],
-      //   [25, 2, 0.2],
-      //   [26, 2, 0.2],
-      //   [27, 2, 0.0],
-      //   [28, 2, 0.5],
-      //   [29, 2, 0.2],
-      //   [30, 2, 0.2],
-      //   [31, 2, 0.1],
-      //   [32, 2, 0.5]
-      // ];
-      // var data3 = [
-      //   [1, 4, 0.1],
-      //   [2, 4, 0.2],
-      //   [3, 4, 0.2],
-      //   [4, 4, 0.2],
-      //   [5, 4, 0.2],
-      //   [6, 4, 0.3],
-      //   [7, 4, 0.2],
-      //   [8, 4, 0.2],
-      //   [9, 4, 0.5],
-      //   [10, 4, 0.4],
-      //   [11, 4, 0.0],
-      //   [12, 4, 0.5],
-      //   [13, 4, 0.4],
-      //   [14, 4, 0.3],
-      //   [15, 4, 0.3],
-      //   [16, 4, 0.5],
-      //   [17, 4, 0.1],
-      //   [18, 4, 0.2],
-      //   [19, 4, 0.2],
-      //   [20, 4, 0.2],
-      //   [21, 4, 0.2],
-      //   [22, 4, 0.3],
-      //   [23, 4, 0.2],
-      //   [24, 4, 0.2],
-      //   [25, 4, 0.5],
-      //   [26, 4, 0.4],
-      //   [27, 4, 0.0],
-      //   [28, 4, 0.5],
-      //   [29, 4, 0.4],
-      //   [30, 4, 0.3],
-      //   [31, 4, 0.3],
-      //   [32, 4, 0.5]
-      // ];
-      // var counter = 0;
-      // for (var i = 33; i < 10000; i++) {
-      //   counter++;
-      //   var x1 = i;
-      //   var y1 = 0;
-      //   var z1 = 0;
-      //   if (counter > 200) {
-      //     z1 = Math.random();
-      //   }
-      //   data1.push([x1, y1, z1]);
-      //   var x2 = i;
-      //   var y2 = 2;
-      //   var z2 = 0;
-      //   if (counter > 200) {
-      //     z2 = Math.random();
-      //   }
-      //   data2.push([x2, y2, z2]);
-      //   var x3 = i;
-      //   var y3 = 4;
-      //   var z3 = 0;
-      //   if (counter > 200) {
-      //     z3 = Math.random();
-      //   }
-      //   data3.push([x3, y3, z3]);
-      //   if (counter > 200) {
-      //     counter = 0;
-      //   }
-      // }
+      /* this.fallPlotEachrt = echarts
+      var hours = [1, 2, 3, 4, 5, 6, 7];
+      var days = ["A", "B", "C", "D", "E", "F"];
+      var data1 = [
+        [1, 0, 0.1],
+        [2, 0, 0.2],
+        [3, 0, 0.0],
+        [4, 0, 0.2],
+        [5, 0, 0.4],
+        [6, 0, 0.5],
+        [7, 0, 0.0],
+        [8, 0, 0.4],
+        [9, 0, 0.2],
+        [10, 0, 0.5],
+        [11, 0, 0.9],
+        [12, 0, 0.5],
+        [13, 0, 0.3],
+        [14, 0, 0.2],
+        [15, 0, 0.0],
+        [16, 0, 0.5],
+        [17, 0, 0.1],
+        [18, 0, 0.2],
+        [19, 0, 0.0],
+        [20, 0, 0.2],
+        [21, 0, 0.4],
+        [22, 0, 0.5],
+        [23, 0, 0.0],
+        [24, 0, 0.4],
+        [25, 0, 0.2],
+        [26, 0, 0.5],
+        [27, 0, 0.0],
+        [28, 0, 0.5],
+        [29, 0, 0.3],
+        [30, 0, 0.2],
+        [31, 0, 0.0],
+        [32, 0, 0.5]
+      ];
+      var data2 = [
+        [1, 2, 0.1],
+        [2, 2, 0.4],
+        [3, 2, 0.3],
+        [4, 2, 0.5],
+        [5, 2, 0.4],
+        [6, 2, 0.5],
+        [7, 2, 0.4],
+        [8, 2, 0.3],
+        [9, 2, 0.2],
+        [10, 2, 0.2],
+        [11, 2, 0.0],
+        [12, 2, 0.5],
+        [13, 2, 0.2],
+        [14, 2, 0.2],
+        [15, 2, 0.1],
+        [16, 2, 0.5],
+        [17, 2, 0.1],
+        [18, 2, 0.4],
+        [19, 2, 0.3],
+        [20, 2, 0.5],
+        [21, 2, 0.4],
+        [22, 2, 0.5],
+        [23, 2, 0.4],
+        [24, 2, 0.3],
+        [25, 2, 0.2],
+        [26, 2, 0.2],
+        [27, 2, 0.0],
+        [28, 2, 0.5],
+        [29, 2, 0.2],
+        [30, 2, 0.2],
+        [31, 2, 0.1],
+        [32, 2, 0.5]
+      ];
+      var data3 = [
+        [1, 4, 0.1],
+        [2, 4, 0.2],
+        [3, 4, 0.2],
+        [4, 4, 0.2],
+        [5, 4, 0.2],
+        [6, 4, 0.3],
+        [7, 4, 0.2],
+        [8, 4, 0.2],
+        [9, 4, 0.5],
+        [10, 4, 0.4],
+        [11, 4, 0.0],
+        [12, 4, 0.5],
+        [13, 4, 0.4],
+        [14, 4, 0.3],
+        [15, 4, 0.3],
+        [16, 4, 0.5],
+        [17, 4, 0.1],
+        [18, 4, 0.2],
+        [19, 4, 0.2],
+        [20, 4, 0.2],
+        [21, 4, 0.2],
+        [22, 4, 0.3],
+        [23, 4, 0.2],
+        [24, 4, 0.2],
+        [25, 4, 0.5],
+        [26, 4, 0.4],
+        [27, 4, 0.0],
+        [28, 4, 0.5],
+        [29, 4, 0.4],
+        [30, 4, 0.3],
+        [31, 4, 0.3],
+        [32, 4, 0.5]
+      ];
+      var counter = 0;
+      for (var i = 33; i < 10000; i++) {
+        counter++;
+        var x1 = i;
+        var y1 = 0;
+        var z1 = 0;
+        if (counter > 200) {
+          z1 = Math.random();
+        }
+        data1.push([x1, y1, z1]);
+        var x2 = i;
+        var y2 = 2;
+        var z2 = 0;
+        if (counter > 200) {
+          z2 = Math.random();
+        }
+        data2.push([x2, y2, z2]);
+        var x3 = i;
+        var y3 = 4;
+        var z3 = 0;
+        if (counter > 200) {
+          z3 = Math.random();
+        }
+        data3.push([x3, y3, z3]);
+        if (counter > 200) {
+          counter = 0;
+        }
+      } */
 
-      let seriesOption =  {
-            name: "one",
-            type: "line3D",
-            data: 'data1',
-            stack: "总量",
-            //ITEMSTYLE: {
-            //     OPACITY: 0.4
-            // },
-            emphasis: {
-              label: {
-                textStyle: {
-                  fontSize: 12
-                }
-              },
-              itemStyle: {
-                color: "#900"
-              }
-            },
-            lineStyle: {
-              width: 1
+      let seriesOption = {
+        name: "one",
+        type: "line3D",
+        data: "data1",
+        stack: "总量",
+        //ITEMSTYLE: {
+        //     OPACITY: 0.4
+        // },
+        emphasis: {
+          label: {
+            textStyle: {
+              fontSize: 12
             }
-          };
+          },
+          itemStyle: {
+            color: "#900"
+          }
+        },
+        lineStyle: {
+          width: 1
+        }
+      };
 
-      let seriesData = res.map((item) =>{
-         let data = item.Points;
-         let series = JSON.parse(JSON.stringify(seriesOption));
-         series.data = data;
-         return series;
-      })
-
+      let seriesData = res.map(item => {
+        let data = item.Points;
+        let series = JSON.parse(JSON.stringify(seriesOption));
+        series.data = data;
+        return series;
+      });
+      // let ZARR = [];
+      // res.forEach(item =>{
+      //   item.Points.forEach(v =>{
+      //     ZARR.push(v[2])
+      //   })
+      // })
+      // let visualMapMax = Math.max(...ZARR);
+      // console.log('visualMapMax',visualMapMax)
       let option = (option = {
         tooltip: {},
         visualMap: {
-          max: 1,
+          // max: 'auto',
           inRange: {
             color: [
               "#313695",
@@ -768,21 +830,21 @@ export default {
           alpha: 0
         },
         xAxis3D: {
-          type: "value",
+          type: "value"
           // data: hours
         },
         yAxis3D: {
-          type: "category",
+          type: "category"
           // data: days
         },
         zAxis3D: {
-          type: "value",
+          type: "value"
           // data: hours
         },
         grid3D: {
-          boxWidth: 350,
-          boxDepth: 90,
-          boxHeight: 90,
+          boxWidth: 220*this.pbRate,
+          boxDepth: 90*this.pbRate,
+          boxHeight: 80*this.pbRate,
           light: {
             main: {
               intensity: 1.2
@@ -792,11 +854,11 @@ export default {
             }
           },
           viewControl: {
-            alpha: 0,
-            beta: 0
+            alpha: 5,
+            beta: 10
           }
         },
-        series:seriesData
+        series: seriesData
         // series: [
         //   {
         //     name: "one",
@@ -885,12 +947,12 @@ export default {
     border-bottom: 1px solid #ccc;
   }
   .containter {
-    width: calc(100vw - 200px);
+    width: calc(100vw - 120px);
     .left {
       float: left;
-      height: calc(100vh - 60px);
       background: #fff;
       position: relative;
+      height: calc(100vh - 60px);
       &.open {
         width: 190px;
       }
@@ -919,24 +981,23 @@ export default {
       }
     }
     .right {
-      width: calc(100vw - 390px);
-      height: calc(100vh - 60px);
-      @extend .scroll_bar;
       float: right;
-      overflow: auto;
+      // overflow: auto;
+      // @extend .scroll_bar;
+      overflow: hidden;
       padding-left: 20px;
+      padding-bottom: 20px;
       &.big {
-        width: calc(100vw - 230px);
+        width: calc(100vw - 150px);
       }
 
       &.small {
-        width: calc(100vw - 390px);
+        width: calc(100vw - 310px);
       }
     }
     .select-box {
-      min-width: 500px;
       display: flex;
-      margin-top: 20px;
+      margin-top: 10px;
       .cjq {
         .el-select {
           width: 110px;
@@ -961,17 +1022,17 @@ export default {
 
     .side-data {
       position: absolute;
-      top: 50px;
+      top: 5vh;
       right: 0;
       width: 100px;
-      height: 300px;
+      height: calc(50vh - 100px);
       .item {
         width: 100%;
         background: #fff;
         border: 1px solid #ccc;
         border-radius: 3px;
         & + .item {
-          margin-top: 20px;
+          margin-top: 2vh;
         }
         p {
           height: 30px;
@@ -985,27 +1046,27 @@ export default {
     }
 
     .spectrogram {
-      min-width: 500px;
       width: calc(100% - 20px);
-      margin-top: 20px;
+      // margin-top: 20px;
       position: relative;
+      // margin-bottom: 50px;
       .spectrogram-map {
-        width: calc(100% - 80px);
-        height: 370px;
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
         padding: 0 20px;
         // border: 1px solid #ccc;
       }
     }
     .time-domain-diagram {
-      margin-top: 40px;
+      margin-top: 2vh;
       min-width: 500px;
       width: calc(100% - 20px);
       // width: calc(100vw - 440px);
       position: relative;
       .time-domain-diagram-map {
         // min-width:600px;
-        width: calc(100% - 80px);
-        height: 370px;
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
         padding: 0 20px;
         // border: 1px solid #ccc;
       }
@@ -1013,14 +1074,12 @@ export default {
 
     .waterfall-plot {
       margin-top: 40px;
-      width: 100%;
+      width: calc(100% - 20px);
       .waterfall-plot-map {
         min-width: 500px;
-        width: calc(100vw - 450px);
+        height: calc(100vh - 300px);
         box-sizing: border-box;
-        height: 600px;
         padding: 0 20px;
-        border: 1px solid #ccc;
       }
     }
   }

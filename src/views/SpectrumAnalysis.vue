@@ -1,8 +1,16 @@
 <template>
   <div class="spectrum-analysis">
     <header>
-      <el-button :type="showStatus === 'pp'?'primary':''" @click="handleShowStatus('pp')" size="small">频谱图</el-button>
-      <el-button :type="showStatus === 'pb'?'primary':''" @click="handleShowStatus('pb')" size="small">瀑布图</el-button>
+      <el-button
+        :type="showStatus === 'pp'?'primary':''"
+        @click="handleShowStatus('pp')"
+        size="small"
+      >频谱图</el-button>
+      <el-button
+        :type="showStatus === 'pb'?'primary':''"
+        @click="handleShowStatus('pb')"
+        size="small"
+      >瀑布图</el-button>
     </header>
     <div class="containter">
       <div class="left open" :class="collapseShow?'open':'close'">
@@ -37,7 +45,7 @@
         <div class="select-box">
           <div class="cjq">
             采集器：
-            <el-select v-model="cjqvalue" placeholder="请选择" @change="handleCollectorNote">
+            <el-select v-model="CollectorId" placeholder="请选择" @change="handleCollectorNote">
               <el-option
                 v-for="item in selectOption"
                 :key="item.CollectorId"
@@ -48,9 +56,9 @@
           </div>
           <div class="td">
             通道：
-            <el-select v-model="tdvalue" placeholder="请选择" @change="handleChangeTd">
+            <el-select v-model="ChannelId" placeholder="请选择" @change="handleChangeTd">
               <el-option
-                v-for="item in tdOption"
+                v-for="item in ChannelNotes"
                 :key="item.ChannelId"
                 :label="item.ChannelNote"
                 :value="item.ChannelId"
@@ -60,7 +68,7 @@
           <div class="time">
             时间
             <el-date-picker
-              v-model="timeValue"
+              v-model="timeQuantum"
               format="yyyy-MM-dd HH:mm:ss"
               value-format="yyyy-MM-dd HH:mm:ss"
               type="datetimerange"
@@ -111,16 +119,16 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
 export default {
   data() {
     return {
       showStatus: "pp",
-      timeValue: "", // 选择的时间段
-      cjqvalue: "", // 采集器
-      selectOption: null,
-      cjqOption: [], // 采集器数组
-      tdvalue: "", // 选择的通道
-      tdOption: [], // 选择的通道数组
+      timeQuantum: "", // 选择的时间段 timeQuantum
+      // CollectorId: "", // 采集器
+      // selectOption: null,
+      // ChannelId: "", // 选择的通道
+      // ChannelNotes: [], // 选择的通道数组
       timeList: [
         // { value: "2019-10-19 12:12:00" },
         // { value: "2019-10-16 12:12:00" },
@@ -134,24 +142,24 @@ export default {
       diagramData: {}, // 频谱图右侧显示
       checkList: [], // 瀑布图日期复选数组
       // fallPlotEachrt:null,
-      pbRate:1,   // 屏幕尺寸1920 是1 
-      syEchart:null, // 时域图的echart对象
-      ppEchart:null, // 频谱图的echart对象
-      pbEachrt:null, // 瀑布图的echart对象
+      pbRate: 1, // 屏幕尺寸1920 是1
+      syEchart: null, // 时域图的echart对象
+      ppEchart: null, // 频谱图的echart对象
+      pbEachrt: null // 瀑布图的echart对象
     };
   },
-  created(){
+  created() {
     // 计算瀑布图的缩放尺寸
     let winWidth = window.innerWidth || document.body.clientWidth;
-    this.pbRate = winWidth*1.2/1920;
-    if(winWidth > 1600){
-      this.pbRate = winWidth/1920;
-    }else if(winWidth > 1400){
-      this.pbRate = winWidth*1.35/1920;
-    }else if(winWidth > 1300){
-      this.pbRate = winWidth*1.5/1920;
-    }else{
-      this.pbRate = winWidth*1.8/1920;
+    this.pbRate = (winWidth * 1.2) / 1920;
+    if (winWidth > 1600) {
+      this.pbRate = winWidth / 1920;
+    } else if (winWidth > 1400) {
+      this.pbRate = (winWidth * 1.35) / 1920;
+    } else if (winWidth > 1300) {
+      this.pbRate = (winWidth * 1.5) / 1920;
+    } else {
+      this.pbRate = (winWidth * 1.8) / 1920;
     }
   },
   mounted() {
@@ -159,44 +167,63 @@ export default {
     // this.drawTimeDomainDiagram();
     this.getGetAllCollector();
   },
+  computed: {
+    ...mapGetters({
+      selectOption: "getAllCollector",
+      CollectorId:"getCollectorId",
+      ChannelNotes:"getChannelNotes",
+      ChannelId:"getChannelId",
+      // timeQuantum:"getTimeQuantum",
+    })
+  },
   methods: {
+    ...mapActions(["setAllCollector","setCollectorId","setChannelNotes","setChannelId","setTimeQuantum"]),
     // 获取所有采集器信息
     getGetAllCollector() {
-      let GetAllCollector = window["YZ_GetAllCollector"];
-      if (GetAllCollector) {
-        GetAllCollector({}, (res, data) => {
-          if (res == 0 && data) {
-            data = JSON.parse(data);
-            console.log("获取采集器数据", data);
-            this.selectOption = data;
-            this.cjqvalue = data[0].CollectorId;
-            console.log("默认第一个选择采集器", this.cjqvalue);
-            if (data.length && data[0].ChannelNotes.length) {
-              this.tdOption = data[0].ChannelNotes;
-              this.tdvalue = this.tdOption[0].ChannelId;
-              console.log("设置通道数据", this.tdOption);
-              console.log("默认选中第一个通道", this.tdvalue);
+      if (this.getAllCollector) {
+      } else {
+        let GetAllCollector = window["YZ_GetAllCollector"];
+        if (GetAllCollector) {
+          GetAllCollector({}, (res, data) => {
+            if (res == 0 && data) {
+              data = JSON.parse(data);
+              // 获取到的采集器数据缓存
+              this.setAllCollector(data);
+              // this.console.log("获取采集器数据", data);
+              // this.selectOption = data;
+              // this.CollectorId = data[0].CollectorId;
+              this.setCollectorId(data[0].CollectorId)
+              console.log("默认第一个选择采集器", this.CollectorId);
+              if (data.length && data[0].ChannelNotes.length) {
+                this.setChannelNotes(data[0].ChannelNotes);
+                // this.ChannelNotes = data[0].ChannelNotes;
+                this.setChannelId(data[0].ChannelNotes[0].ChannelId);
+                // this.ChannelId = this.ChannelNotes[0].ChannelId;
+                // console.log("设置通道数据", this.ChannelNotes);
+                // console.log("默认选中第一个通道", this.ChannelId);
+                console.log('vuex',JSON.parse(JSON.stringify(this.$store.state)));
+              }
             }
-          }
-        });
+          });
+        }
       }
     },
 
     handleCollectorNote() {
-      this.tdOption = [];
-      this.tdvalue = "";
-      let [filtertdOption] = this.selectOption.filter(
-        item => item.CollectorId === this.cjqvalue
+      this.ChannelNotes = [];
+      this.ChannelId = "";
+      let [filterChannelNotes] = this.selectOption.filter(
+        item => item.CollectorId === this.CollectorId
       );
-      if (filtertdOption) {
-        this.tdOption = filtertdOption.ChannelNotes;
-        this.tdvalue = this.tdOption[0].ChannelId;
+      if (filterChannelNotes) {
+        this.ChannelNotes = filterChannelNotes.ChannelNotes;
+        this.ChannelId = this.ChannelNotes[0].ChannelId;
       }
       this.timeList = [];
       this.timeRadio = "";
       this.drawSpectrogram();
       this.drawTimeDomainDiagram();
-      if (this.timeValue && this.timeValue.length) {
+      if (this.timeQuantum && this.timeQuantum.length) {
         this.getPointsOfDate();
         console.log("这里是切换采集器触发获取时间段");
       }
@@ -207,7 +234,7 @@ export default {
       this.timeRadio = "";
       this.drawSpectrogram();
       this.drawTimeDomainDiagram();
-      if (this.timeValue && this.timeValue.length) {
+      if (this.timeQuantum && this.timeQuantum.length) {
         this.getPointsOfDate();
         console.log("这里是切换通道");
       }
@@ -215,20 +242,23 @@ export default {
 
     // 获取指定采集器，指定通道，指定时间段所有采集数据时间点
     getPointsOfDate() {
-      if (!this.timeValue) {
+      debugger
+      if (!this.timeQuantum) {
         this.timeList = [];
         this.timeRadio = "";
         this.drawSpectrogram();
         this.drawTimeDomainDiagram();
         return;
       }
+      debugger
+      this.setTimeQuantum(this.timeQuantum);
       let ThePointsOfDate = window["YZ_ThePointsOfDate"];
       if (ThePointsOfDate) {
         let option = {
-          CollectorId: this.cjqvalue,
-          ChannelId: this.tdvalue,
-          StartDate: this.timeValue[0],
-          EndDate: this.timeValue[1]
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
+          StartDate: this.timeQuantum[0],
+          EndDate: this.timeQuantum[1]
         };
         ThePointsOfDate(option, (res, data) => {
           if (res == 0 && data) {
@@ -259,8 +289,8 @@ export default {
       let data;
       if (GetTimeDomainPlotData) {
         let option = {
-          CollectorId: this.cjqvalue,
-          ChannelId: this.tdvalue,
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
           DatePoint: this.timeRadio
         };
         GetTimeDomainPlotData(option, (res, data) => {
@@ -416,8 +446,8 @@ export default {
       let GetSpectrogramData = window["YZ_GetSpectrogramData"];
       if (GetSpectrogramData) {
         let option = {
-          CollectorId: this.cjqvalue,
-          ChannelId: this.tdvalue,
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
           DatePoint: this.timeRadio
         };
         GetSpectrogramData(option, (res, data) => {
@@ -583,13 +613,13 @@ export default {
       if (GetWaterfallPlotData) {
         debugger;
         let option = {
-          CollectorId: this.cjqvalue,
-          ChannelId: this.tdvalue,
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
           JsonDatePoint: JSON.stringify(this.checkList)
         };
         console.log("chanshu", option);
         GetWaterfallPlotData(option, (res, data) => {
-          if (res == 0 && data ) {
+          if (res == 0 && data) {
             data = JSON.parse(data);
             console.log("获取到瀑布图制图数据", res, data);
             data = data.map(item => {
@@ -635,7 +665,6 @@ export default {
       if (!res) {
         return;
       }
-
 
       /* this.fallPlotEachrt = echarts
       var hours = [1, 2, 3, 4, 5, 6, 7];
@@ -842,9 +871,9 @@ export default {
           // data: hours
         },
         grid3D: {
-          boxWidth: 220*this.pbRate,
-          boxDepth: 90*this.pbRate,
-          boxHeight: 80*this.pbRate,
+          boxWidth: 220 * this.pbRate,
+          boxDepth: 90 * this.pbRate,
+          boxHeight: 80 * this.pbRate,
           light: {
             main: {
               intensity: 1.2

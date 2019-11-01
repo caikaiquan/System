@@ -54,7 +54,7 @@
               :min="1000"
               :max="128000"
               v-show="scope.row.editStatus"
-              @change="(currentValue, oldValue) =>{changeInputNumber(currentValue, oldValue,scope.row)}"
+              @change="(currentValue, oldValue) =>{changeInputNumber(currentValue, oldValue,scope.row,'edit-form')}"
             ></el-input-number>
           </template>
         </el-table-column>
@@ -206,7 +206,7 @@
         </div>
         <div class="form-item w50">
           <el-form-item label="IP：" :label-width="formLabelWidth">
-            <el-input v-model="form.CollectorIp" autocomplete="off" size="small"></el-input>
+            <el-input v-model.trim="form.CollectorIp" autocomplete="off" size="small" @blur.native="addFormCheck('IP')"></el-input>
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -216,7 +216,13 @@
         </div>
         <div class="form-item w50">
           <el-form-item label="采样频率HZ：" :label-width="formLabelWidth">
-            <el-input v-model="form.CollectorRate" autocomplete="off" size="small"></el-input>
+            <el-input-number
+              v-model="form.CollectorRate"
+              controls-position="right"
+              :min="1000"
+              :max="128000"
+              @change="(currentValue, oldValue) =>{changeInputNumber(currentValue, oldValue,form.CollectorRate,'add-form')}"
+            ></el-input-number>
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -227,7 +233,7 @@
         <div class="form-item w50">
           <el-form-item label="转速采集：" :label-width="formLabelWidth">
             <el-switch
-              class='form-switch'
+              class="form-switch"
               @click.native.stop="changeFormSwitch"
               style="display: block"
               :value="form.OpenRotaionRate == 1"
@@ -249,8 +255,7 @@
         </div>
         <div class="form-item w50 iepe-box">
           <el-form-item label="IEPE灵敏度：" :label-width="formLabelWidth">
-            <el-input v-model="form.IEPESensitivity0" autocomplete="off" size="small"></el-input>
-            mg/v
+            <el-input v-model="form.IEPESensitivity0" autocomplete="off" size="small"></el-input>mg/v
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -260,8 +265,7 @@
         </div>
         <div class="form-item w50 iepe-box">
           <el-form-item label="IEPE灵敏度：" :label-width="formLabelWidth">
-            <el-input v-model="form.IEPESensitivity1" autocomplete="off" size="small"></el-input>
-            mg/v
+            <el-input v-model="form.IEPESensitivity1" autocomplete="off" size="small"></el-input>mg/v
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -271,8 +275,7 @@
         </div>
         <div class="form-item w50 iepe-box">
           <el-form-item label="IEPE灵敏度：" :label-width="formLabelWidth">
-            <el-input v-model="form.IEPESensitivity2" autocomplete="off" size="small"></el-input>
-            mg/v
+            <el-input v-model="form.IEPESensitivity2" autocomplete="off" size="small"></el-input>mg/v
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -282,8 +285,7 @@
         </div>
         <div class="form-item w50 iepe-box">
           <el-form-item label="IEPE灵敏度：" :label-width="formLabelWidth">
-            <el-input v-model="form.IEPESensitivity3" autocomplete="off" size="small"></el-input>
-            mg/v
+            <el-input v-model="form.IEPESensitivity3" autocomplete="off" size="small"></el-input>mg/v
           </el-form-item>
         </div>
         <!-- <el-form-item label="活动名称" :label-width="formLabelWidth">
@@ -298,7 +300,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary"  @click='handleAdd'>确 定</el-button>
+        <el-button type="primary" @click="handleAdd">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -330,7 +332,7 @@ export default {
         }
       ],
       ipList: [],
-      dialogFormVisible: true,
+      dialogFormVisible: false,
       formLabelWidth: "120px",
       form: {
         CollectorId: "",
@@ -356,6 +358,7 @@ export default {
     document.addEventListener("click", this.closeEidt);
   },
   methods: {
+    // 获取
     handleRowClick(row, column, event) {
       row.editStatus = true;
     },
@@ -385,22 +388,38 @@ export default {
       console.log(this.tableData);
     },
     switchBeforeChange(row) {
-      console.log(1111);
       row.OpenRotaionRate = row.OpenRotaionRate === "0" ? "1" : "0";
     },
-    changeInputNumber(currentValue, oldValue, row) {
+    changeInputNumber(currentValue, oldValue, row, type) {
+
+      let value;
       if (oldValue >= currentValue) {
-        row.CollectorRate = oldValue / 2;
+        value = oldValue / 2;
       } else {
-        row.CollectorRate = oldValue * 2;
+        value = oldValue * 2;
+      }
+
+      if (type === "edit-form") {
+        row.CollectorRate = value;
+      } else if (type === "add-form") {
+        this.form.CollectorRate = value;
       }
     },
     changeFormSwitch() {
       this.form.OpenRotaionRate = this.form.OpenRotaionRate == 1 ? 0 : 1;
     },
-    handleAdd(){
+    handleAdd() {
       console.log(this.form);
       // this.dialogFormVisible = false
+    },
+
+    addFormCheck(type){
+      if(type === 'IP' && this.form.CollectorIp){
+        let reg = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
+        if(!reg.test(this.form.CollectorIp)){
+          this.form.CollectorIp = '';
+        }
+      }
     }
   },
   beforeDestroy() {
@@ -498,18 +517,18 @@ export default {
         padding: 0 8px;
       }
 
-      &.w100{
+      &.w100 {
         width: 100%;
       }
 
-      .form-switch{
+      .form-switch {
         margin-top: 8px;
       }
 
-      &.iepe-box{
-        .el-form-item__content{
-          .el-input.el-input--small{
-              width: 80%;
+      &.iepe-box {
+        .el-form-item__content {
+          .el-input.el-input--small {
+            width: 80%;
           }
         }
       }

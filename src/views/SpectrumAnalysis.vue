@@ -125,8 +125,8 @@ export default {
     return {
       showStatus: "pp",
       timeQuantum: "", // 选择的时间段 timeQuantum
-      // CollectorId: "", // 采集器
-      // selectOption: null,
+      CollectorId: "", // 采集器
+      selectOption: null,
       // ChannelId: "", // 选择的通道
       // ChannelNotes: [], // 选择的通道数组
       timeList: [
@@ -162,6 +162,11 @@ export default {
       this.pbRate = (winWidth * 1.8) / 1920;
     }
   },
+  beforeMount() {
+    // if(this.timeQuantum){
+    //   this.timequantum = this.timeQuantum
+    // }
+  },
   mounted() {
     // this.drawSpectrogram();
     // this.drawTimeDomainDiagram();
@@ -169,15 +174,21 @@ export default {
   },
   computed: {
     ...mapGetters({
-      selectOption: "getAllCollector",
-      CollectorId:"getCollectorId",
-      ChannelNotes:"getChannelNotes",
-      ChannelId:"getChannelId",
+      // selectOption: "getAllCollector",
+      // CollectorId:"getCollectorId",
+      // ChannelNotes:"getChannelNotes",
+      // ChannelId:"getChannelId",
       // timeQuantum:"getTimeQuantum",
     })
   },
   methods: {
-    ...mapActions(["setAllCollector","setCollectorId","setChannelNotes","setChannelId","setTimeQuantum"]),
+    ...mapActions([
+      "setAllCollector",
+      "setCollectorId",
+      "setChannelNotes",
+      "setChannelId",
+      "setTimeQuantum"
+    ]),
     // 获取所有采集器信息
     getGetAllCollector() {
       if (this.getAllCollector) {
@@ -190,18 +201,21 @@ export default {
               // 获取到的采集器数据缓存
               this.setAllCollector(data);
               // this.console.log("获取采集器数据", data);
-              // this.selectOption = data;
-              // this.CollectorId = data[0].CollectorId;
-              this.setCollectorId(data[0].CollectorId)
-              console.log("默认第一个选择采集器", this.CollectorId);
+              this.selectOption = data;
+              this.CollectorId = data[0].CollectorId;
+              // this.setCollectorId(data[0].CollectorId)
+              // console.log("默认第一个选择采集器", this.CollectorId);
               if (data.length && data[0].ChannelNotes.length) {
-                this.setChannelNotes(data[0].ChannelNotes);
-                // this.ChannelNotes = data[0].ChannelNotes;
-                this.setChannelId(data[0].ChannelNotes[0].ChannelId);
-                // this.ChannelId = this.ChannelNotes[0].ChannelId;
+                // this.setChannelNotes(data[0].ChannelNotes);
+                this.ChannelNotes = data[0].ChannelNotes;
+                // this.setChannelId(data[0].ChannelNotes[0].ChannelId);
+                this.ChannelId = this.ChannelNotes[0].ChannelId;
                 // console.log("设置通道数据", this.ChannelNotes);
                 // console.log("默认选中第一个通道", this.ChannelId);
-                console.log('vuex',JSON.parse(JSON.stringify(this.$store.state)));
+                console.log(
+                  "vuex",
+                  JSON.parse(JSON.stringify(this.$store.state))
+                );
               }
             }
           });
@@ -242,7 +256,6 @@ export default {
 
     // 获取指定采集器，指定通道，指定时间段所有采集数据时间点
     getPointsOfDate() {
-      debugger
       if (!this.timeQuantum) {
         this.timeList = [];
         this.timeRadio = "";
@@ -250,7 +263,6 @@ export default {
         this.drawTimeDomainDiagram();
         return;
       }
-      debugger
       this.setTimeQuantum(this.timeQuantum);
       let ThePointsOfDate = window["YZ_ThePointsOfDate"];
       if (ThePointsOfDate) {
@@ -261,9 +273,10 @@ export default {
           EndDate: this.timeQuantum[1]
         };
         ThePointsOfDate(option, (res, data) => {
+          console.log("获取时间段参数", option);
           if (res == 0 && data) {
             data = JSON.parse(data);
-            console.log("根据筛选条件获取时间段", data);
+            console.log("根据筛选条件获取时间段", option, data);
             if (data.DatePoint) {
               this.timeList = data.DatePoint.map(item => ({ value: item }));
               this.collapseShow = true;
@@ -296,6 +309,7 @@ export default {
         GetTimeDomainPlotData(option, (res, data) => {
           if (res == 0 && data) {
             data = JSON.parse(data);
+            console.log("获取到制图数据", data);
             this.drawSpectrogram(data);
             this.spectrogramData.DataCount = data.DataCount;
             this.spectrogramData.Rate = data.Rate;
@@ -1001,6 +1015,10 @@ export default {
         margin-top: 40px;
         max-width: 190px;
         padding-left: 10px;
+        min-height: 500px;
+        overflow-y: auto;
+        overflow-x:hidden;
+        @extend .scroll_bar_mixin;
         .el-radio {
           height: 24px;
           display: flex;

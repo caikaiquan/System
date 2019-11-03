@@ -1,7 +1,13 @@
 <template>
   <div class="parameter-setting">
     <div class="container">
-      <el-table :data="tableData" border style="width: 100%" @row-click="handleRowClick">
+      <el-table
+        :data="tableData"
+        border
+        style="width: 100%"
+        @row-click="handleRowClick"
+        height="calc(100vh - 150px)"
+      >
         <!-- <el-table-column prop="ip" label="IP"></el-table-column>
         <el-table-column prop="pl" label="采用频率Hz"></el-table-column>
         <el-table-column prop="cyds" label="采样点数"></el-table-column>
@@ -61,11 +67,19 @@
         <el-table-column prop="DataCount" label="采样点数">
           <template slot-scope="scope">
             <p v-show="!scope.row.editStatus">{{scope.row.DataCount}}</p>
-            <el-input
+            <el-input-number
+              v-model="scope.row.DataCount"
+              controls-position="right"
+              :min="256"
+              :max="10240"
+              v-show="scope.row.editStatus"
+              @change="(currentValue, oldValue) =>{changeDataCount(currentValue, oldValue,scope.row,'edit-form')}"
+            ></el-input-number>
+            <!-- <el-input
               v-model="scope.row.DataCount"
               v-show="scope.row.editStatus"
               placeholder="请输入内容"
-            ></el-input>
+            ></el-input>-->
           </template>
         </el-table-column>
         <el-table-column prop="StoreIntervel" label="保存间隔（s）">
@@ -93,21 +107,32 @@
         <el-table-column prop="CollectorId" label="通道说明">
           <template slot-scope="scope">
             <p
+              v-for="(item,index) in scope.row.ChannelNotes"
+              :key="index+Math.random()"
               class="scope-cell left"
               v-show="!scope.row.editStatus"
-            >0. {{scope.row.IEPESensitivity0}}</p>
+            >0. {{item.ChannelNote}}</p>
             <p
               class="scope-cell left"
-              v-show="!scope.row.editStatus"
-            >1. {{scope.row.IEPESensitivity1}}</p>
-            <p
-              class="scope-cell left"
-              v-show="!scope.row.editStatus"
-            >2. {{scope.row.IEPESensitivity2}}</p>
-            <p
-              class="scope-cell left"
-              v-show="!scope.row.editStatus"
-            >3. {{scope.row.IEPESensitivity3}}</p>
+              v-show="scope.row.editStatus"
+              v-for="(v,index) in scope.row.ChannelNotes"
+              :key="index"
+            >
+              <el-input
+                class="input-scope-cell"
+                v-model="v.ChannelNote"
+                placeholder="请输入内容"
+                size="mini"
+              ></el-input>
+            </p>
+          </template>
+        </el-table-column>
+        <el-table-column prop="CollectorId" label="IEPE灵敏度">
+          <template slot-scope="scope">
+            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.IEPESensitivity0}} mv/g</p>
+            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.IEPESensitivity1}} mv/g</p>
+            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.IEPESensitivity2}} mv/g</p>
+            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.IEPESensitivity3}} mv/g</p>
             <p class="scope-cell left" v-show="scope.row.editStatus">
               <el-input
                 class="input-scope-cell"
@@ -142,46 +167,6 @@
             </p>
           </template>
         </el-table-column>
-        <el-table-column prop="CollectorId" label="IEPE灵敏度">
-          <template slot-scope="scope">
-            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.Channel0Note}} mv/g</p>
-            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.Channel1Note}} mv/g</p>
-            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.Channel2Note}} mv/g</p>
-            <p class="scope-cell" v-show="!scope.row.editStatus">{{scope.row.Channel3Note}} mv/g</p>
-            <p class="scope-cell left" v-show="scope.row.editStatus">
-              <el-input
-                class="input-scope-cell"
-                v-model="scope.row.Channel0Note"
-                placeholder="请输入内容"
-                size="mini"
-              ></el-input>
-            </p>
-            <p class="scope-cell left" v-show="scope.row.editStatus">
-              <el-input
-                class="input-scope-cell"
-                v-model="scope.row.Channel1Note"
-                placeholder="请输入内容"
-                size="mini"
-              ></el-input>
-            </p>
-            <p class="scope-cell left" v-show="scope.row.editStatus">
-              <el-input
-                class="input-scope-cell"
-                v-model="scope.row.Channel2Note"
-                placeholder="请输入内容"
-                size="mini"
-              ></el-input>
-            </p>
-            <p class="scope-cell left" v-show="scope.row.editStatus">
-              <el-input
-                class="input-scope-cell"
-                v-model="scope.row.Channel3Note"
-                placeholder="请输入内容"
-                size="mini"
-              ></el-input>
-            </p>
-          </template>
-        </el-table-column>
         <el-table-column prop="CollectorId" label="保存">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" @click.stop="handleSave(scope.row)">保存</el-button>
@@ -206,7 +191,7 @@
         </div>
         <div class="form-item w50">
           <el-form-item label="IP：" :label-width="formLabelWidth">
-            <el-input v-model.trim="form.CollectorIp" autocomplete="off" size="small" @blur.native="addFormCheck('IP')"></el-input>
+            <el-input v-model.trim="form.CollectorIp" autocomplete="off" size="small"></el-input>
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -227,7 +212,14 @@
         </div>
         <div class="form-item w50">
           <el-form-item label="采样点数：" :label-width="formLabelWidth">
-            <el-input v-model="form.DataCount" autocomplete="off" size="small"></el-input>
+            <!-- <el-input v-model="form.DataCount" autocomplete="off" size="small"></el-input> -->
+            <el-input-number
+              v-model="form.DataCount"
+              controls-position="right"
+              :min="256"
+              :max="10240"
+              @change="(currentValue, oldValue) =>{changeDataCount(currentValue, oldValue,form.CollectorRate,'add-form')}"
+            ></el-input-number>
           </el-form-item>
         </div>
         <div class="form-item w50">
@@ -356,10 +348,69 @@ export default {
   },
   created() {
     document.addEventListener("click", this.closeEidt);
+    this.getGetAllCollector();
   },
   methods: {
+    // 获取采集器数据
+    getGetAllCollector() {
+      let GetAllCollector = window["YZ_GetAllCollector"];
+      if (GetAllCollector) {
+        GetAllCollector({}, (res, data) => {
+          if (data && res == 0) {
+            data = JSON.parse(data);
+            console.log("111", JSON.parse(JSON.stringify(data)));
+            data.forEach(item => {
+              item.editStatus = false;
+              item.formLabelWidth = "120px";
+            });
+            // console.log("获取到采集器信息", data);
+            this.tableData = data;
+          }
+        });
+      }
+    },
+    // 添加采集器 // YZ_AddNewCollector   {CollectorId:'C0003', CollectorNote:'采集器3#', CollectorIp:'192.168.116.197', Rate:'1024', DataCount:'520', StoreIntervel:'15', OpenRotaionRate:'1', IEPESensitivity0:'125', IEPESensitivity1:'250', IEPESensitivity2:'500', IEPESensitivity3:'1000', Channel0Note:'C0', Channel1Note:'C1', Channel2Note:'C2', Channel3Note:'C3'}
+    // 清空添加数据
+    cleanForm() {
+      this.form = {
+        CollectorId: "",
+        CollectorNote: "",
+        CollectorIp: "",
+        CollectorRate: "",
+        DataCount: "",
+        StoreIntervel: "",
+        OpenRotaionRate: "",
+        IEPESensitivity0: "",
+        IEPESensitivity1: "",
+        IEPESensitivity2: "",
+        IEPESensitivity3: "",
+        Channel0Note: "",
+        Channel1Note: "",
+        Channel2Note: "",
+        Channel3Note: "",
+        OpenRotaionRate: 1
+      };
+    },
+    addNewCollector() {
+      // 对参数进行校验
+      let AddNewCollector = window["YZ_AddNewCollector"];
+      if (AddNewCollector) {
+        AddNewCollector(this.form, (res, data) => {
+          console.log(res, data);
+          if (res == 0) {
+            this.$message.success(data);
+            this.dialogFormVisible = false;
+            this.cleanForm();
+            this.getGetAllCollector();
+          }
+        });
+      }
+    },
     // 获取
     handleRowClick(row, column, event) {
+      this.tableData.forEach(item => {
+        item.editStatus = false;
+      });
       row.editStatus = true;
     },
     closeEidt(e) {
@@ -379,19 +430,69 @@ export default {
       }
     },
     handleSave(row) {
-      row.editStatus = false;
+      // console.log(JSON.parse(JSON.stringify(row)));
+      // ip校验
+      let reg = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
+      if (!reg.test(row.CollectorIp)) {
+        this.$message.error("请输入正确的ip地址");
+        return;
+      }
+
+      // 保存间隔只能大于0的整数
+      let reg1 = /^\+?[1-9]\d*$/;
+      if (!reg1.test(row.StoreIntervel)) {
+        this.$message.error("保存间隔必须是大于0的正整数");
+        return;
+      }
+
+      if (
+        !reg1.test(row.IEPESensitivity0) ||
+        !reg1.test(row.IEPESensitivity1) ||
+        !reg1.test(row.IEPESensitivity2) ||
+        !reg1.test(row.IEPESensitivity3)
+      ) {
+        this.$message.error("IEPE灵敏度必须是大于0的正整数");
+        return;
+      }
+
+      // {CollectorId:'C0003', CollectorNote:'采集器3号', CollectorIp:'192.168.116.197', Rate:'1024', DataCount:'520', StoreIntervel:'15', OpenRotaionRate:'1', IEPESensitivity0:'125', IEPESensitivity1:'250', IEPESensitivity2:'500', IEPESensitivity3:'1000', Channel0Note:'C0', Channel1Note:'C1', Channel2Note:'C2', Channel3Note:'C3'}
+      let ModifyCollector = window["YZ_ModifyCollector"];
+      let obj = { ...row };
+      obj.Channel0Note = row.ChannelNotes[0].ChannelNote;
+      obj.Channel1Note = row.ChannelNotes[1].ChannelNote;
+      obj.Channel2Note = row.ChannelNotes[2].ChannelNote;
+      obj.Channel3Note = row.ChannelNotes[3].ChannelNote;
+      // console.log(3333,obj);
+      ModifyCollector(obj, (res, data) => {
+        // console.log(res,data);
+        if (res == 0) {
+          this.$message.success(data);
+          row.editStatus = false;
+        }
+      });
+      return;
     },
     handleDel(row) {
-      this.tableData = this.tableData.filter(
-        item => item.CollectorId !== row.CollectorId
-      );
+      // YZ_DeleteCollector({CollectorId:'C0003'}
+      // console.log(row);
+      let DeleteCollector = window["YZ_DeleteCollector"];
+      if (DeleteCollector) {
+        DeleteCollector({ CollectorId: row.CollectorId }, (res, data) => {
+          if (res == 0) {
+            this.$message.success(data);
+            // this.tableData = this.tableData.filter(
+            //   item => item.CollectorId !== row.CollectorId
+            // );
+          }
+        });
+      }
+      return;
       console.log(this.tableData);
     },
     switchBeforeChange(row) {
       row.OpenRotaionRate = row.OpenRotaionRate === "0" ? "1" : "0";
     },
     changeInputNumber(currentValue, oldValue, row, type) {
-
       let value;
       if (oldValue >= currentValue) {
         value = oldValue / 2;
@@ -405,19 +506,58 @@ export default {
         this.form.CollectorRate = value;
       }
     },
+    changeDataCount(currentValue, oldValue, row, type) {
+      let value;
+      if (oldValue >= currentValue) {
+        value = oldValue / 2;
+      } else {
+        value = oldValue * 2;
+      }
+
+      if (type === "edit-form") {
+        row.DataCount = value;
+      } else if (type === "add-form") {
+        this.form.DataCount = value;
+      }
+    },
     changeFormSwitch() {
       this.form.OpenRotaionRate = this.form.OpenRotaionRate == 1 ? 0 : 1;
     },
     handleAdd() {
-      console.log(this.form);
-      // this.dialogFormVisible = false
+      console.log(JSON.parse(JSON.stringify(this.form)));
+
+      // 对表单数据进行校验
+      // ip校验
+      let reg = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
+      if (!reg.test(this.form.CollectorIp)) {
+        this.$message.error("请输入正确的ip地址");
+        return;
+      }
+
+      // 保存间隔只能大于0的整数
+      let reg1 = /^\+?[1-9]\d*$/;
+      if (!reg1.test(this.form.StoreIntervel)) {
+        this.$message.error("保存间隔必须是大于0的正整数");
+        return;
+      }
+
+      if (
+        !reg1.test(this.form.IEPESensitivity0) ||
+        !reg1.test(this.form.IEPESensitivity1) ||
+        !reg1.test(this.form.IEPESensitivity2) ||
+        !reg1.test(this.form.IEPESensitivity3)
+      ) {
+        this.$message.error("IEPE灵敏度必须是大于0的正整数");
+        return;
+      }
+
+      this.addNewCollector();
     },
 
-    addFormCheck(type){
-      if(type === 'IP' && this.form.CollectorIp){
-        let reg = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;
-        if(!reg.test(this.form.CollectorIp)){
-          this.form.CollectorIp = '';
+    addFormCheck(type) {
+      if (type === "IP" && this.form.CollectorIp) {
+        if (!reg.test(this.form.CollectorIp)) {
+          this.form.CollectorIp = "";
         }
       }
     }
@@ -429,10 +569,14 @@ export default {
 </script>
 
 <style lang='scss' >
+@import "../assets/css/base.scss";
 .parameter-setting {
   width: 100%;
-  height: 100%;
+  // height: calc(100vh - 60px);
+  // overflow: auto;
+  // @extend .scroll_bar;
   background-color: #f2f2f2;
+  padding-top: 60px;
   .el-switch__label.el-switch__label--left {
     span {
       color: #333 !important;
@@ -441,8 +585,15 @@ export default {
   .container {
     width: 100%;
     // height: 1000px;
+    // height: calc(100vh - 200px);
+    // overflow: auto;
+    // @extend .scroll_bar;
     min-width: 824px;
     // padding-top: 10px;
+    .el-table--scrollable-y .el-table__body-wrapper {
+      @extend .scroll_bar;
+    }
+
     table {
       .has-gutter {
         .cell {

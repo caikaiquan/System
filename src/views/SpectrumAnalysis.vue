@@ -426,6 +426,9 @@ export default {
         series: {
           name: "G",
           type: "line",
+          lineStyle:{
+            width:1,
+          },
           data: data.map(function(item) {
             return item[1];
           }),
@@ -584,6 +587,9 @@ export default {
         series: {
           name: "G",
           type: "line",
+          lineStyle:{
+            width:1,
+          },
           data: data.map(function(item) {
             return item[1];
           }),
@@ -615,7 +621,6 @@ export default {
     },
     // 复选框勾选
     handleChangeCheckList() {
-      debugger;
       console.log(this.checkList);
       if (!this.checkList.length) {
         this.drawWaterfallPlot();
@@ -625,7 +630,6 @@ export default {
       // this.drawWaterfallPlot('res');
       let GetWaterfallPlotData = window["YZ_GetWaterfallPlotData"];
       if (GetWaterfallPlotData) {
-        debugger;
         let option = {
           CollectorId: this.CollectorId,
           ChannelId: this.ChannelId,

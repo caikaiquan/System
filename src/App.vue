@@ -113,8 +113,8 @@ export default {
         { date: "4X", name: "0.00", address: "0.00", address1: "0.00" }
       ],
       item1Form: {
-        input1: "",
-        input2: "",
+        input1: "111",
+        input2: "222",
         input3: "",
         input4: ""
       },

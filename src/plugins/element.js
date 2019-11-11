@@ -20,7 +20,8 @@ import {
     Dialog,
     Form,
     FormItem,
-    Message
+    Message,
+    Drawer,
 } from 'element-ui'
 
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
@@ -47,6 +48,7 @@ Vue.use(InputNumber)
 Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)
+Vue.use(Drawer)
 
 
 Vue.prototype.$message = Message;

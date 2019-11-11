@@ -127,8 +127,8 @@ export default {
       timeQuantum: "", // 选择的时间段 timeQuantum
       CollectorId: "", // 采集器
       selectOption: null,
-      // ChannelId: "", // 选择的通道
-      // ChannelNotes: [], // 选择的通道数组
+      ChannelId: "", // 选择的通道
+      ChannelNotes: [], // 选择的通道数组
       timeList: [
         // { value: "2019-10-19 12:12:00" },
         // { value: "2019-10-16 12:12:00" },

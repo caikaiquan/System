@@ -1,14 +1,13 @@
 <template>
   <div id="app">
-    <!-- <div class="minimize">
+    <div class="minimize">
       <i class="el-icon-minus" @click="handleMini"></i>
     </div>
     <div class="close-icon">
       <i class="el-icon-close" @click="handleClose"></i>
-    </div> -->
-    <h1>Hello World</h1>
+    </div>
     <drawer-box></drawer-box>
-    <!-- <router-view /> -->
+    <router-view />
   </div>
 </template>
 

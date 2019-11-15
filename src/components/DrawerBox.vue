@@ -1,5 +1,6 @@
 <template>
   <div class="drawer-box">
+    <div class="model" v-show="drawerOpen"></div>
     <div class="icon-left" @click="drawerOpen = true" v-show="!drawerOpen">
       <img src="../assets/images/VibCal.png" alt />
     </div>
@@ -21,7 +22,8 @@
       </div>
       <div class="drawer-content">
         <div class="item" :class="{'show':draweFlags.drawerFlag1}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag1 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag1 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item2">
             <div class="header">电机</div>
             <div class="img">
@@ -60,7 +62,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag2}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag2 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag2 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item7">
             <div class="header">齿轮</div>
             <div class="img">
@@ -133,7 +136,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag3}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag3 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag3 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item6">
             <div class="header">滚动轴承</div>
             <div class="img">
@@ -169,7 +173,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag4}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag4 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag4 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item5">
             <div class="header">泵</div>
             <div class="img">
@@ -193,7 +198,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag5}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag5 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag5 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item4">
             <div class="header">风扇/鼓风机</div>
             <div class="img">
@@ -218,7 +224,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag6}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag6 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag6 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item3">
             <div class="header">滑动轴承</div>
             <div class="img">
@@ -240,7 +247,8 @@
           </div>
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag7}">
-          <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag7 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag7 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
           <div class="item-content item1">
             <div class="header">传动带</div>
             <div class="img">
@@ -337,6 +345,12 @@ export default {
           this.draweFlags[key] = false;
         }
       }
+    },
+    handleClode() {
+      this.drawerOpen = false;
+      for (let key in this.draweFlags) {
+        this.draweFlags[key] = false;
+      }
     }
   }
 };
@@ -344,6 +358,16 @@ export default {
 
 <style lang='scss'>
 .drawer-box {
+  position: relative;
+  z-index: 111;
+  .model {
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
   .icon-left {
     display: flex;
     justify-content: center;
@@ -451,6 +475,15 @@ export default {
         z-index: 2;
         transition: all 0.15s;
         background-color: #fff;
+        .back {
+          position: absolute;
+          top: 18px;
+          left: 10px;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+        }
         &.show {
           left: 0;
           z-index: 3;

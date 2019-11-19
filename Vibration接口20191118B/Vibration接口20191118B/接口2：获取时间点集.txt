@@ -1,0 +1,14 @@
+
+接口调用：YZ_ThePointsOfDate({CollectorId:'C0001', ChannelId:'AI0', StartDate:'2019-01-01 12:00:00', EndDate:'2019-11-01 12:00:00'},function(res,data){
+      console.log('接口返回:',res,data)
+});
+
+接口返回: 0 {
+   "DatePoint" : [ "2019-10-26 23:20:28", "2019-10-26 23:20:41" ]
+}
+
+
+返回值带一个整数标识一些状态
+0 成功且有数据  
+1 查询数据库出错  
+2 没有数据

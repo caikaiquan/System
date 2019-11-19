@@ -1,0 +1,14 @@
+
+接口调用：YZ_ModifyCollector({CollectorId:'C0003', CollectorNote:'采集器3号', CollectorIp:'192.168.116.197', Rate:'1024', DataCount:'520', StoreIntervel:'15', OpenRotaionRate:'1', IEPESensitivity0:'125', IEPESensitivity1:'250', IEPESensitivity2:'500', IEPESensitivity3:'1000', Channel0Note:'C0', Channel1Note:'C1', Channel2Note:'C2', Channel3Note:'C3'},function(res,data){
+      console.log('接口返回:',res,data)
+});
+
+
+接口返回: 0 修改成功!
+
+
+返回值带一个整数  和 一个字符串（用来描述整数编号）
+0 修改成功!
+1 此采集器不存在!
+2 保存数据库失败!
+3 查询数据库失败!

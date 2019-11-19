@@ -29,35 +29,47 @@
             <div class="header">电机</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item1Form.NumberOfPoles"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item1Form.RotorRpm"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input3"></el-input>
+                <el-input v-model="item1Form.LineFrequency"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input4"></el-input>
+                <el-input v-model="item1Form.NumberOfRotorBars"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolMotor">计算</el-button>
             </div>
             <div class="text-con">
-              <p>马达转速(RPM) = 0.00</p>
-              <p>同步速度(CPM) = 0.00</p>
-              <p>Slip(CPM) = 0.00</p>
-              <p>Slip(%) = 0.00</p>
-              <p>PPF(CPM) = 0.00</p>
-              <p>RBPF(CPM) = 0.00</p>
+              <p>马达转速(RPM) = {{item1Res.MotorSpeed | numberFilter}}</p>
+              <p>同步速度(CPM) = {{item1Res.SynchronousSpeed | numberFilter}}</p>
+              <p>Slip(CPM) = {{item1Res.Slip_CPM | numberFilter}}</p>
+              <p>Slip(%) = {{item1Res.Slip | numberFilter}}</p>
+              <p>PPF(CPM) = {{item1Res.PPF_CPM | numberFilter}}</p>
+              <p>RBPF(CPM) = {{item1Res.RBPF_CPM | numberFilter}}</p>
             </div>
             <div class="tbale-con">
               <el-table :data="item1Data" border style="width: 100%">
-                <el-table-column prop="date" label="RPM（Hz）"></el-table-column>
-                <el-table-column prop="name" label="RPM"></el-table-column>
-                <el-table-column prop="address" label="PPF"></el-table-column>
-                <el-table-column prop="address1" label="RBPF"></el-table-column>
+                <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
+                <el-table-column prop="RPM" label="RPM">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RPM | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="PPF" label="PPF">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.PPF | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="RBPF" label="RBPF">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RBPF | numberFilter}}</p>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -69,29 +81,29 @@
             <div class="header">齿轮</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item2Form.NumberOfTeeth"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item2Form.OutputSpeed"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input3"></el-input>
+                <el-input v-model="item2Form.InputSpeed"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input4"></el-input>
+                <el-input v-model="item2Form.InputNumberOfTeeth"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolGears">计算</el-button>
             </div>
             <div class="text-con">
-              <p>输入速度(Input Speed) = 0.00</p>
-              <p>输出速度(Input Speed) = 0.00</p>
-              <p>输入齿数(Input# of Teeth) = 0.00</p>
-              <p>输出齿数(Onput# of Teeth) = 0.00</p>
+              <p>输入速度(Input Speed) = {{item2Res.InputSpeed | numberFilter}}</p>
+              <p>输出速度(Input Speed) = {{item2Res.OutputSpeed | numberFilter}}</p>
+              <p>输入齿数(Input# of Teeth) = {{item2Res.InputOfTeeth | numberFilter}}</p>
+              <p>输出齿数(Onput# of Teeth) = {{item2Res.OutputOfTeeth | numberFilter}}</p>
             </div>
             <div class="tbale-con">
-              <el-table :data="item7Data" border style="width: 100%" class="item7-table">
+              <el-table :data="item2Data" border style="width: 100%" class="item7-table">
                 <el-table-column prop="date" label="RPM（Hz）">
                   <template>
                     <div class="item7-cell">
@@ -103,31 +115,31 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="address" label="1X">
-                  <template>
+                  <template slot-scope="scope">
                     <div class="item7-cell1">
-                      <p>0.00</p>
+                      <p>{{(scope.row.INPUT_GEAR_1X || scope.row.OUTPUT_GEAR_1X) | numberFilter}}</p>
                       <p>
-                        <span>0.00</span>
-                        <span>0.00</span>
+                        <span>{{scope.row['-1xSB-1X'] | numberFilter}}</span>
+                        <span>{{scope.row['+1xSB-1X'] | numberFilter}}</span>
                       </p>
                       <p>
-                        <span>0.00</span>
-                        <span>0.00</span>
+                        <span>{{scope.row['-2xSB-1X'] | numberFilter}}</span>
+                        <span>{{scope.row['+2xSB-1X'] | numberFilter}}</span>
                       </p>
                     </div>
                   </template>
                 </el-table-column>
                 <el-table-column prop="address" label="2X">
-                  <template>
+                  <template slot-scope="scope">
                     <div class="item7-cell1">
-                      <p>0.00</p>
+                      <p>{{(scope.row.INPUT_GEAR_2X || scope.row.OUTPUT_GEAR_2X) | numberFilter}}</p>
                       <p>
-                        <span>0.00</span>
-                        <span>0.00</span>
+                        <span>{{scope.row['-1xSB-2X'] | numberFilter}}</span>
+                        <span>{{scope.row['+1xSB-2X'] | numberFilter}}</span>
                       </p>
                       <p>
-                        <span>0.00</span>
-                        <span>0.00</span>
+                        <span>{{scope.row['-2xSB-2X'] | numberFilter}}</span>
+                        <span>{{scope.row['+2xSB-2X'] | numberFilter}}</span>
                       </p>
                     </div>
                   </template>
@@ -143,26 +155,26 @@
             <div class="header">滚动轴承</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item3Form.ContactAngle"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item3Form.PitchDiameter"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input3"></el-input>
+                <el-input v-model="item3Form.RollingElementDiameter"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input4"></el-input>
+                <el-input v-model="item3Form.RPM"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input4"></el-input>
+                <el-input v-model="item3Form.NumberOfRollingElements"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolRollBearings">计算</el-button>
             </div>
             <div class="tbale-con">
-              <el-table :data="item1Data" border style="width: 100%">
+              <el-table :data="item3Data" border style="width: 100%">
                 <el-table-column prop="date" label="RPM（Hz）" width="118"></el-table-column>
                 <el-table-column prop="name" label="X" width="65"></el-table-column>
                 <el-table-column prop="address" label="1X" width="65"></el-table-column>
@@ -180,20 +192,28 @@
             <div class="header">泵</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item4Form.NumberOfVanes"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item4Form.RotorRPM"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolPumps">计算</el-button>
             </div>
             <div class="tbale-con">
-              <el-table :data="item1Data" border style="width: 100%">
-                <el-table-column prop="date" label="RPM（Hz）"></el-table-column>
-                <el-table-column prop="name" label="Rotor Speed"></el-table-column>
-                <el-table-column prop="address" label="Vane Pass"></el-table-column>
+              <el-table :data="item4Data" border style="width: 100%">
+                <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
+                <el-table-column prop="RotorSpeed" label="Rotor Speed">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RotorSpeed | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="VanePass" label="Vane Pass">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.VanePass | numberFilter}}</p>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -205,21 +225,37 @@
             <div class="header">风扇/鼓风机</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item5Form.NumberOfBlades"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item5Form.RotorRpm"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolFans">计算</el-button>
             </div>
             <div class="tbale-con">
-              <el-table :data="item1Data" border style="width: 100%">
-                <el-table-column prop="date" label="RPM（Hz）"></el-table-column>
-                <el-table-column prop="name" label="Rotor Sync."></el-table-column>
-                <el-table-column prop="address" label="输出转速"></el-table-column>
-                <el-table-column prop="address1" label="皮带转速"></el-table-column>
+              <el-table :data="item5Data" border style="width: 100%">
+                <el-table-column prop="X0" label="RPM（Hz）">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.X0 || scope.row.Xn}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="RotorSync" label="Rotor Sync.">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RotorSync | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="MotorSpeed" label="输出转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.MotorSpeed | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="BladePass" label="皮带转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.BladePass | numberFilter}}</p>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -231,18 +267,30 @@
             <div class="header">滑动轴承</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item6Form.RotorRPM"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolJourBearings">计算</el-button>
             </div>
             <div class="tbale-con">
-              <el-table :data="item3Data" border style="width: 100%">
-                <el-table-column prop="date" label="RPM（Hz）"></el-table-column>
-                <el-table-column prop="name" label="Rotor Sync."></el-table-column>
-                <el-table-column prop="address" label="输出转速"></el-table-column>
-                <el-table-column prop="address1" label="皮带转速"></el-table-column>
+              <el-table :data="item6Data" border style="width: 100%">
+                <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
+                <el-table-column prop="RotorSync" label="Rotor Sync.">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RotorSync | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="OilWhirl" label="输出转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.OilWhirl | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="Wear" label="皮带转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.Wear | numberFilter}}</p>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -254,35 +302,47 @@
             <div class="header">传动带</div>
             <div class="img">
               <p>
-                <el-input v-model="item1Form.input1"></el-input>
+                <el-input v-model="item7Form.DiamBig"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input2"></el-input>
+                <el-input v-model="item7Form.DiamSmall"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input3"></el-input>
+                <el-input v-model="item7Form.RPM"></el-input>
               </p>
               <p>
-                <el-input v-model="item1Form.input4"></el-input>
+                <el-input v-model="item7Form.Interval"></el-input>
               </p>
             </div>
             <div class="btn-count">
-              <el-button type="primary">计算</el-button>
+              <el-button type="primary" @click="handleVibCalToolBelts">计算</el-button>
             </div>
             <div class="text-con">
-              <p>传动比(Transmission Ratio) = 0.00</p>
-              <p>皮带长(Belt Length) = 0.00 mm</p>
-              <p>带速度(Belt Velocity) =0.00 mm/min</p>
-              <p>滑轮驱动器转速(Driver Pulley RPM) = 0.00</p>
-              <p>从动皮带轮转速(Driven Pulley RPM) = 0.00</p>
-              <p>皮带速度(Belt RPM) = 0.00</p>
+              <p>传动比(Transmission Ratio) = {{item7Res.TransmissionRatio | numberFilter}}</p>
+              <p>皮带长(Belt Length) = {{item7Res.BeltLength | numberFilter}} mm</p>
+              <p>带速度(Belt Velocity) = {{item7Res.BeltVelocity | numberFilter}} mm/min</p>
+              <p>滑轮驱动器转速(Driver Pulley RPM) = {{item7Res.DriverPulleyRPM | numberFilter}}</p>
+              <p>从动皮带轮转速(Driven Pulley RPM) = {{item7Res.DrivenPulleyRPM | numberFilter}}</p>
+              <p>皮带速度(Belt RPM) = {{item7Res.BeltRPM | numberFilter}}</p>
             </div>
             <div class="tbale-con">
-              <el-table :data="item1Data" border style="width: 100%">
-                <el-table-column prop="date" label="RPM（Hz）"></el-table-column>
-                <el-table-column prop="name" label="输入转速"></el-table-column>
-                <el-table-column prop="address" label="输出转速"></el-table-column>
-                <el-table-column prop="address1" label="皮带速度"></el-table-column>
+              <el-table :data="item7Data" border style="width: 100%">
+                <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
+                <el-table-column prop="RPM_IN" label="输入转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RPM_IN | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="RPM_OUT" label="输出转速">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.RPM_OUT | numberFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="BELT_RPM" label="皮带速度">
+                  <template slot-scope="scope">
+                    <p>{{scope.row.BELT_RPM | numberFilter}}</p>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </div>
@@ -311,32 +371,81 @@ export default {
         drawerFlag8: false
       },
       item1Form: {
-        input1: "",
-        input2: "",
-        input3: "",
-        input4: ""
+        // 电机输入表单
+        NumberOfPoles: "",
+        RotorRpm: "",
+        NumberOfRotorBars: "",
+        LineFrequency: ""
       },
-      item1Res:{
-        
+      item1Res: {
+        // 电机数据
+        MotorSpeed: null, // 马达转速(RPM)
+        SynchronousSpeed: null, // 同步速度(CPM)
+        Slip: null, // Slip(%)
+        Slip_CPM: null, // Slip(CPM)
+        PPF_CPM: null, // PPF(CPM)
+        RBPF_CPM: null // RBPF(CPM)
       },
-      item1Data: [
-        { date: "1X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "2X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "3X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "4X", name: "0.00", address: "0.00", address1: "0.00" }
-      ],
-      item3Data: [
-        { date: "1X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "2X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "3X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "4X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "5X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "6X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "7X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "8X", name: "0.00", address: "0.00", address1: "0.00" },
-        { date: "0.4-0.48X", name: "0.00", address: "0.00", address1: "0.00" }
-      ],
-      item7Data: [{}, {}]
+      item1Data: [], // 电机表格数据
+      item2Form: {
+        // 齿轮输入表单  NumberOfTeeth:1.0, InputSpeed:2.0, OutputSpeed:3.0, InputNumberOfTeeth:4.0
+        NumberOfTeeth: "",
+        InputSpeed: "",
+        OutputSpeed: "",
+        InputNumberOfTeeth: ""
+      },
+      item2Res: {
+        InputSpeed: "", // 输入速度
+        OutputSpeed: "", // 输出速度
+        InputOfTeeth: "", // 输入齿数
+        OutputOfTeeth: "" // 输出齿数
+      },
+      item2Data: [], // 齿轮表格数据
+      // ContactAngle:1.0, PitchDiameter:2.0, RollingElementDiameter:3.0, RPM:4.0, NumberOfRollingElements:5.0
+      item3Form: {
+        // 滚动轴承表单
+        ContactAngle: "",
+        PitchDiameter: "",
+        RollingElementDiameter: "",
+        RPM: "",
+        NumberOfRollingElements: ""
+      },
+      item4Form: {
+        // 泵的表单
+        NumberOfVanes: "", // 叶片数
+        RotorRPM: "" // 转数
+      },
+      item4Data: [], //泵的表格数据
+      item5Form: {
+        // 风机风扇
+        NumberOfBlades: "", //叶片数
+        RotorRpm: "" //马达转速
+      },
+      item5Data: [], // 风机表格数据
+      item6Form: {
+        // 滑动轴承表单
+        RotorRPM: ""
+      },
+      item6Data: [], // 滑动轴承表格数据
+      item3Data: [], // 滚动轴承表格数据
+      item7Form: {
+        // 传送带的表单 DiamBig:1.0, DiamSmall:2.0, Interval:3.0, RPM:4.0
+        DiamBig: "",
+        DiamSmall: "",
+        Interval: "",
+        RPM: ""
+      },
+      item7Res: {
+        // 传送带数据
+        TransmissionRatio: "",
+        BeltLength: "",
+        BeltVelocity: "",
+        DriverPulleyRPM: "",
+        DrivenPulleyRPM: "",
+        BeltRPM: ""
+      },
+      item7Data: [], // 传送带表格数据
+      errorMsg: "请检查输入框的值" // 输入框的值校验
     };
   },
   methods: {
@@ -355,7 +464,164 @@ export default {
         this.draweFlags[key] = false;
       }
     },
-    // 
+    // 数据校验
+    handleCheckForm(formData) {
+      return new Promise((resolve, reject) => {
+        for (let key in formData) {
+          if ((!formData[key] && formData[key] == 0) || formData[key] <= 0) {
+            this.$message.error(this.errorMsg);
+            return;
+          }
+        }
+        resolve();
+      });
+    },
+    // 清空表单数据
+    handleClearForm(form) {
+      for (let key in form) {
+        form[key] = "";
+      }
+    },
+    // 计算电机数据
+    handleVibCalToolMotor() {
+      this.handleCheckForm(this.item1Form).then(() => {
+        let VibCalToolMotor = window["YZ_VibCalToolMotor"];
+        if (VibCalToolMotor) {
+          YZ_VibCalToolMotor(this.item1Form, (res, data) => {
+            if (res) {
+              res = JSON.parse(res);
+              console.log("计算电机表单提交返回的数据", res);
+              if (res.ListData) {
+                this.item1Data = res.ListData;
+                this.handleClearForm(this.item1Form);
+              }
+              this.item1Res.MotorSpeed = res.MotorSpeed;
+              this.item1Res.SynchronousSpeed = res.SynchronousSpeed;
+              this.item1Res.Slip = res.Slip;
+              this.item1Res.Slip_CPM = res.Slip_CPM;
+              this.item1Res.PPF_CPM = res.PPF_CPM;
+              this.item1Res.RBPF_CPM = res.RBPF_CPM;
+            }
+          });
+        }
+      });
+    },
+    // 计算齿轮数据
+    handleVibCalToolGears() {
+      this.handleCheckForm(this.item2Form).then(() => {
+        let VibCalToolGears = window["YZ_VibCalToolGears"];
+        if (VibCalToolGears) {
+          VibCalToolGears(this.item2Form, res => {
+            if (res) {
+              res = JSON.parse(res);
+              console.log(
+                "计算齿轮获取到的数据",
+                JSON.parse(JSON.stringify(res))
+              );
+              this.item2Data = res.ListData;
+              this.item2Res.InputSpeed = res.InputSpeed;
+              this.item2Res.OutputSpeed = res.OutputSpeed;
+              this.item2Res.InputOfTeeth = res.InputOfTeeth;
+              this.item2Res.OutputOfTeeth = res.OutputOfTeeth;
+              this.handleClearForm(this.item2Form);
+            }
+          });
+        }
+      });
+    },
+    // 计算滚动轴承
+    handleVibCalToolRollBearings() {
+      this.handleCheckForm(this.item3Form).then(() => {
+        let VibCalToolRollBearings = window["YZ_VibCalToolRollBearings"];
+        if (VibCalToolRollBearings) {
+          VibCalToolRollBearings(this.item3Form, res => {
+            console.log("滚动轴承计算返回数据", res);
+            res = JSON.parse(res);
+            // 模拟数据
+            this.item3Data = [
+              { date: "1X", name: "0.000", address: "0.000" },
+              { date: "2X", name: "0.000", address: "0.000" },
+              { date: "3X", name: "0.000", address: "0.000" },
+              { date: "4X", name: "0.000", address: "0.000" },
+              { date: "5X", name: "0.000", address: "0.000" },
+              { date: "6X", name: "0.000", address: "0.000" },
+              { date: "7X", name: "0.000", address: "0.000" },
+              { date: "0.4-0.48X", name: "0.000", address: "0.000" }
+            ];
+            // 清空输入框
+            this.handleClearForm(this.item3Form);
+          });
+        }
+      });
+    },
+    // 计算泵
+    handleVibCalToolPumps() {
+      this.handleCheckForm(this.item4Form).then(() => {
+        let VibCalToolPumps = window["YZ_VibCalToolPumps"];
+        if (VibCalToolPumps) {
+          VibCalToolPumps(this.item4Form, res => {
+            if (res) {
+              res = JSON.parse(res);
+              console.log("点击计算获取泵的数据", res);
+              this.item4Data = res.ListData;
+              this.handleClearForm(this.item4Form);
+            }
+          });
+        }
+      });
+    },
+    // 计算风机
+    handleVibCalToolFans() {
+      this.handleCheckForm(this.item5Form).then(() => {
+        let VibCalToolFans = window["YZ_VibCalToolFans"];
+        if (VibCalToolFans) {
+          VibCalToolFans(this.item5Form, res => {
+            if (res) {
+              res = JSON.parse(res);
+              console.log("计算风机获取到的数据", res);
+              this.item5Data = res.ListData;
+              this.handleClearForm(this.item5Form);
+            }
+          });
+        }
+      });
+    },
+    // 计算滑动轴承
+    handleVibCalToolJourBearings() {
+      this.handleCheckForm(this.item6Form).then(() => {
+        let VibCalToolJourBearings = window["YZ_VibCalToolJourBearings"];
+        if (VibCalToolJourBearings) {
+          VibCalToolJourBearings(this.item6Form, res => {
+            if (res) {
+              res = JSON.parse(res);
+              console.log("计算滑动轴承获取的数据", res);
+              this.item6Data = res.ListData;
+              this.handleClearForm(this.item6Form);
+            }
+          });
+        }
+      });
+    },
+    // 计算传动带
+    handleVibCalToolBelts() {
+      this.handleCheckForm(this.item7Form).then(() => {
+        let VibCalToolBelts = window["YZ_VibCalToolBelts"];
+        VibCalToolBelts(this.item7Form, res => {
+          if (res) {
+            res = JSON.parse(res);
+            console.log("计算传动带获取的数据", res);
+            this.item7Data = res.ListData;
+            this.item7Res.TransmissionRatio = res.TransmissionRatio;
+            this.item7Res.BeltLength = res.BeltLength;
+            this.item7Res.BeltVelocity = res.BeltVelocity;
+            this.item7Res.DriverPulleyRPM = res.DriverPulleyRPM;
+            this.item7Res.DrivenPulleyRPM = res.DrivenPulleyRPM;
+            this.item7Res.BeltRPM = res.BeltRPM;
+            this.handleClearForm(this.item7Form);
+          }
+        });
+      });
+    }
   }
 };
 </script>
@@ -404,11 +670,11 @@ export default {
       height: 100%;
       background: url("../assets/images/1.png") no-repeat center;
       position: relative;
-      .title{
+      .title {
         position: absolute;
         top: 20px;
         left: 50%;
-        transform:translateX(-50%);
+        transform: translateX(-50%);
         font-size: 22px;
         font-weight: 600;
         color: #fff;
@@ -689,6 +955,16 @@ export default {
                   width: 62px;
                   top: 200px;
                   left: 331px;
+                }
+              }
+            }
+
+            .el-table__body-wrapper {
+              .el-table__row {
+                td {
+                  .cell {
+                    font-size: 12px !important;
+                  }
                 }
               }
             }

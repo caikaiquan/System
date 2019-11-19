@@ -4,7 +4,7 @@ module.exports = {
     devServer: {
         open: false,            //浏览器自动打开页面
         host: "0.0.0.0",        //如果是真机测试，就使用这个IP
-        port: 8080,             // 端口号
+        port: 3000,             // 端口号
         https: false,           // 是否是https请求
         hotOnly: false,         //热更新（webpack已实现了，这里false即可）
         // proxy: {                // 跨域请求转发

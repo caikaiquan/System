@@ -6,6 +6,7 @@
     </div>
     <div class="drawer-module" :class="{'open':drawerOpen}">
       <div class="nav-list">
+        <div class="title">设备振动频率计算</div>
         <div class="close-drawer" @click="drawerOpen = false">
           <i class="el-icon-d-arrow-right"></i>
         </div>
@@ -288,7 +289,6 @@
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag8}">
           <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag8 = false"></i>
-          888888888888888
         </div>
       </div>
     </div>
@@ -315,6 +315,9 @@ export default {
         input2: "",
         input3: "",
         input4: ""
+      },
+      item1Res:{
+        
       },
       item1Data: [
         { date: "1X", name: "0.00", address: "0.00", address1: "0.00" },
@@ -351,7 +354,8 @@ export default {
       for (let key in this.draweFlags) {
         this.draweFlags[key] = false;
       }
-    }
+    },
+    // 
   }
 };
 </script>
@@ -400,6 +404,15 @@ export default {
       height: 100%;
       background: url("../assets/images/1.png") no-repeat center;
       position: relative;
+      .title{
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform:translateX(-50%);
+        font-size: 22px;
+        font-weight: 600;
+        color: #fff;
+      }
       .close-drawer {
         position: absolute;
         top: 5px;

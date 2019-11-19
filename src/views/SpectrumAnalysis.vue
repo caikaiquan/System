@@ -360,16 +360,6 @@ export default {
             show: false
           }
         },
-        /* toolbox: {
-          left: "center",
-          feature: {
-            dataZoom: {
-              yAxisIndex: "none"
-            },
-            restore: {},
-            saveAsImage: {}
-          }
-        }, */
         dataZoom: [
           {
             // startValue: "2014-06-01",
@@ -385,44 +375,6 @@ export default {
             right: "40"
           }
         ],
-        /* visualMap: {
-          top: 10,
-          left: -40,
-          pieces: [
-            {
-              gt: 0,
-              lte: 50,
-              color: "#096"
-            },
-            {
-              gt: 50,
-              lte: 100,
-              color: "#ffde33"
-            },
-            {
-              gt: 100,
-              lte: 150,
-              color: "#ff9933"
-            },
-            {
-              gt: 150,
-              lte: 200,
-              color: "#cc0033"
-            },
-            {
-              gt: 200,
-              lte: 300,
-              color: "#660099"
-            },
-            {
-              gt: 300,
-              color: "#7e0023"
-            }
-          ],
-          outOfRange: {
-            color: "#999"
-          }
-        }, */
         series: {
           name: "G",
           type: "line",
@@ -522,16 +474,6 @@ export default {
             show: false
           }
         },
-        // toolbox: {
-        //   left: "center",
-        //   feature: {
-        //     dataZoom: {
-        //       yAxisIndex: "none"
-        //     },
-        //     restore: {},
-        //     saveAsImage: {}
-        //   }
-        // },
         dataZoom: [
           {
             // startValue: "2014-06-01"
@@ -546,44 +488,6 @@ export default {
             right: "40"
           }
         ],
-        // visualMap: {
-        //   top: 10,
-        //   left: -40,
-        //   pieces: [
-        //     {
-        //       gt: 0,
-        //       lte: 50,
-        //       color: "#096"
-        //     },
-        //     {
-        //       gt: 50,
-        //       lte: 100,
-        //       color: "#ffde33"
-        //     },
-        //     {
-        //       gt: 100,
-        //       lte: 150,
-        //       color: "#ff9933"
-        //     },
-        //     {
-        //       gt: 150,
-        //       lte: 200,
-        //       color: "#cc0033"
-        //     },
-        //     {
-        //       gt: 200,
-        //       lte: 300,
-        //       color: "#660099"
-        //     },
-        //     {
-        //       gt: 300,
-        //       color: "#7e0023"
-        //     }
-        //   ],
-        //   outOfRange: {
-        //     color: "#999"
-        //   }
-        // },
         series: {
           name: "G",
           type: "line",
@@ -683,141 +587,6 @@ export default {
       if (!res) {
         return;
       }
-
-      /* this.fallPlotEachrt = echarts
-      var hours = [1, 2, 3, 4, 5, 6, 7];
-      var days = ["A", "B", "C", "D", "E", "F"];
-      var data1 = [
-        [1, 0, 0.1],
-        [2, 0, 0.2],
-        [3, 0, 0.0],
-        [4, 0, 0.2],
-        [5, 0, 0.4],
-        [6, 0, 0.5],
-        [7, 0, 0.0],
-        [8, 0, 0.4],
-        [9, 0, 0.2],
-        [10, 0, 0.5],
-        [11, 0, 0.9],
-        [12, 0, 0.5],
-        [13, 0, 0.3],
-        [14, 0, 0.2],
-        [15, 0, 0.0],
-        [16, 0, 0.5],
-        [17, 0, 0.1],
-        [18, 0, 0.2],
-        [19, 0, 0.0],
-        [20, 0, 0.2],
-        [21, 0, 0.4],
-        [22, 0, 0.5],
-        [23, 0, 0.0],
-        [24, 0, 0.4],
-        [25, 0, 0.2],
-        [26, 0, 0.5],
-        [27, 0, 0.0],
-        [28, 0, 0.5],
-        [29, 0, 0.3],
-        [30, 0, 0.2],
-        [31, 0, 0.0],
-        [32, 0, 0.5]
-      ];
-      var data2 = [
-        [1, 2, 0.1],
-        [2, 2, 0.4],
-        [3, 2, 0.3],
-        [4, 2, 0.5],
-        [5, 2, 0.4],
-        [6, 2, 0.5],
-        [7, 2, 0.4],
-        [8, 2, 0.3],
-        [9, 2, 0.2],
-        [10, 2, 0.2],
-        [11, 2, 0.0],
-        [12, 2, 0.5],
-        [13, 2, 0.2],
-        [14, 2, 0.2],
-        [15, 2, 0.1],
-        [16, 2, 0.5],
-        [17, 2, 0.1],
-        [18, 2, 0.4],
-        [19, 2, 0.3],
-        [20, 2, 0.5],
-        [21, 2, 0.4],
-        [22, 2, 0.5],
-        [23, 2, 0.4],
-        [24, 2, 0.3],
-        [25, 2, 0.2],
-        [26, 2, 0.2],
-        [27, 2, 0.0],
-        [28, 2, 0.5],
-        [29, 2, 0.2],
-        [30, 2, 0.2],
-        [31, 2, 0.1],
-        [32, 2, 0.5]
-      ];
-      var data3 = [
-        [1, 4, 0.1],
-        [2, 4, 0.2],
-        [3, 4, 0.2],
-        [4, 4, 0.2],
-        [5, 4, 0.2],
-        [6, 4, 0.3],
-        [7, 4, 0.2],
-        [8, 4, 0.2],
-        [9, 4, 0.5],
-        [10, 4, 0.4],
-        [11, 4, 0.0],
-        [12, 4, 0.5],
-        [13, 4, 0.4],
-        [14, 4, 0.3],
-        [15, 4, 0.3],
-        [16, 4, 0.5],
-        [17, 4, 0.1],
-        [18, 4, 0.2],
-        [19, 4, 0.2],
-        [20, 4, 0.2],
-        [21, 4, 0.2],
-        [22, 4, 0.3],
-        [23, 4, 0.2],
-        [24, 4, 0.2],
-        [25, 4, 0.5],
-        [26, 4, 0.4],
-        [27, 4, 0.0],
-        [28, 4, 0.5],
-        [29, 4, 0.4],
-        [30, 4, 0.3],
-        [31, 4, 0.3],
-        [32, 4, 0.5]
-      ];
-      var counter = 0;
-      for (var i = 33; i < 10000; i++) {
-        counter++;
-        var x1 = i;
-        var y1 = 0;
-        var z1 = 0;
-        if (counter > 200) {
-          z1 = Math.random();
-        }
-        data1.push([x1, y1, z1]);
-        var x2 = i;
-        var y2 = 2;
-        var z2 = 0;
-        if (counter > 200) {
-          z2 = Math.random();
-        }
-        data2.push([x2, y2, z2]);
-        var x3 = i;
-        var y3 = 4;
-        var z3 = 0;
-        if (counter > 200) {
-          z3 = Math.random();
-        }
-        data3.push([x3, y3, z3]);
-        if (counter > 200) {
-          counter = 0;
-        }
-      } */
-
       let seriesOption = {
         name: "one",
         type: "line3D",
@@ -847,14 +616,6 @@ export default {
         series.data = data;
         return series;
       });
-      // let ZARR = [];
-      // res.forEach(item =>{
-      //   item.Points.forEach(v =>{
-      //     ZARR.push(v[2])
-      //   })
-      // })
-      // let visualMapMax = Math.max(...ZARR);
-      // console.log('visualMapMax',visualMapMax)
       let option = (option = {
         tooltip: {},
         visualMap: {
@@ -906,66 +667,6 @@ export default {
           }
         },
         series: seriesData
-        // series: [
-        //   {
-        //     name: "one",
-        //     type: "line3D",
-        //     data: data1,
-        //     stack: "总量",
-        //     //ITEMSTYLE: {
-        //     //     OPACITY: 0.4
-        //     // },
-        //     emphasis: {
-        //       label: {
-        //         textStyle: {
-        //           fontSize: 12
-        //         }
-        //       },
-        //       itemStyle: {
-        //         color: "#900"
-        //       }
-        //     },
-        //     lineStyle: {
-        //       width: 1
-        //     }
-        //   },
-        //   {
-        //     name: "tow",
-        //     type: "line3D",
-        //     data: data2,
-        //     stack: "总量1",
-        //     shading: "color",
-        //     emphasis: {
-        //       label: {
-        //         textStyle: {
-        //           fontSize: 20,
-        //           color: "#FF0"
-        //         }
-        //       },
-        //       itemStyle: {
-        //         color: "#000"
-        //       }
-        //     }
-        //   },
-        //   {
-        //     name: "three",
-        //     type: "line3D",
-        //     data: data3,
-        //     stack: "总量1",
-        //     shading: "color",
-        //     emphasis: {
-        //       label: {
-        //         textStyle: {
-        //           fontSize: 20,
-        //           color: "#000"
-        //         }
-        //       },
-        //       itemStyle: {
-        //         color: "#000"
-        //       }
-        //     }
-        //   }
-        // ]
       });
       echarts.setOption(option);
     },
@@ -1019,7 +720,7 @@ export default {
         margin-top: 40px;
         max-width: 190px;
         padding-left: 10px;
-        min-height: 500px;
+        min-height: calc(100vh - 110px);
         overflow-y: auto;
         overflow-x:hidden;
         @extend .scroll_bar_mixin;

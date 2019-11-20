@@ -471,6 +471,8 @@ export default {
           if ((!formData[key] && formData[key] == 0) || formData[key] <= 0) {
             this.$message.error(this.errorMsg);
             return;
+          }else{
+            formData[key] = formData[key] - 0;
           }
         }
         resolve();
@@ -609,7 +611,7 @@ export default {
         VibCalToolBelts(this.item7Form, res => {
           if (res) {
             res = JSON.parse(res);
-            console.log("计算传动带获取的数据", res);
+            console.log('计算传送带获取的数据',res)
             this.item7Data = res.ListData;
             this.item7Res.TransmissionRatio = res.TransmissionRatio;
             this.item7Res.BeltLength = res.BeltLength;
@@ -621,7 +623,7 @@ export default {
           }
         });
       });
-    }
+    },
   }
 };
 </script>

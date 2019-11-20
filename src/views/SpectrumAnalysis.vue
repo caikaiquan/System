@@ -752,13 +752,13 @@ export default {
       margin-top: 10px;
       .cjq {
         .el-select {
-          width: 110px;
+          width: 140px;
         }
       }
       .td {
         margin-left: 20px;
         .el-select {
-          width: 110px;
+          width: 140px;
         }
       }
       .time {

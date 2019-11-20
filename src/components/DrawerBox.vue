@@ -57,17 +57,17 @@
                 <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
                 <el-table-column prop="RPM" label="RPM">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RPM | numberFilter}}</p>
+                    <p>{{scope.row.RPM | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="PPF" label="PPF">
                   <template slot-scope="scope">
-                    <p>{{scope.row.PPF | numberFilter}}</p>
+                    <p>{{scope.row.PPF | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="RBPF" label="RBPF">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RBPF | numberFilter}}</p>
+                    <p>{{scope.row.RBPF | tableFilter}}</p>
                   </template>
                 </el-table-column>
               </el-table>
@@ -81,7 +81,7 @@
             <div class="header">齿轮</div>
             <div class="img">
               <p>
-                <el-input v-model="item2Form.NumberOfTeeth"></el-input>
+                <el-input v-model="item2Form.OutputNumberOfTeeth"></el-input>
               </p>
               <p>
                 <el-input v-model="item2Form.OutputSpeed"></el-input>
@@ -117,14 +117,14 @@
                 <el-table-column prop="address" label="1X">
                   <template slot-scope="scope">
                     <div class="item7-cell1">
-                      <p>{{(scope.row.INPUT_GEAR_1X || scope.row.OUTPUT_GEAR_1X) | numberFilter}}</p>
+                      <p>{{(scope.row.INPUT_GEAR_1X || scope.row.OUTPUT_GEAR_1X) | tableFilter}}</p>
                       <p>
-                        <span>{{scope.row['-1xSB-1X'] | numberFilter}}</span>
-                        <span>{{scope.row['+1xSB-1X'] | numberFilter}}</span>
+                        <span>{{scope.row['-1xSB-1X'] | tableFilter}}</span>
+                        <span>{{scope.row['+1xSB-1X'] | tableFilter}}</span>
                       </p>
                       <p>
-                        <span>{{scope.row['-2xSB-1X'] | numberFilter}}</span>
-                        <span>{{scope.row['+2xSB-1X'] | numberFilter}}</span>
+                        <span>{{scope.row['-2xSB-1X'] | tableFilter}}</span>
+                        <span>{{scope.row['+2xSB-1X'] | tableFilter}}</span>
                       </p>
                     </div>
                   </template>
@@ -132,14 +132,14 @@
                 <el-table-column prop="address" label="2X">
                   <template slot-scope="scope">
                     <div class="item7-cell1">
-                      <p>{{(scope.row.INPUT_GEAR_2X || scope.row.OUTPUT_GEAR_2X) | numberFilter}}</p>
+                      <p>{{(scope.row.INPUT_GEAR_2X || scope.row.OUTPUT_GEAR_2X) | tableFilter}}</p>
                       <p>
-                        <span>{{scope.row['-1xSB-2X'] | numberFilter}}</span>
-                        <span>{{scope.row['+1xSB-2X'] | numberFilter}}</span>
+                        <span>{{scope.row['-1xSB-2X'] | tableFilter}}</span>
+                        <span>{{scope.row['+1xSB-2X'] | tableFilter}}</span>
                       </p>
                       <p>
-                        <span>{{scope.row['-2xSB-2X'] | numberFilter}}</span>
-                        <span>{{scope.row['+2xSB-2X'] | numberFilter}}</span>
+                        <span>{{scope.row['-2xSB-2X'] | tableFilter}}</span>
+                        <span>{{scope.row['+2xSB-2X'] | tableFilter}}</span>
                       </p>
                     </div>
                   </template>
@@ -206,12 +206,12 @@
                 <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
                 <el-table-column prop="RotorSpeed" label="Rotor Speed">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RotorSpeed | numberFilter}}</p>
+                    <p>{{scope.row.RotorSpeed | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="VanePass" label="Vane Pass">
                   <template slot-scope="scope">
-                    <p>{{scope.row.VanePass | numberFilter}}</p>
+                    <p>{{scope.row.VanePass | tableFilter}}</p>
                   </template>
                 </el-table-column>
               </el-table>
@@ -238,22 +238,22 @@
               <el-table :data="item5Data" border style="width: 100%">
                 <el-table-column prop="X0" label="RPM（Hz）">
                   <template slot-scope="scope">
-                    <p>{{scope.row.X0 || scope.row.Xn}}</p>
+                    <p>{{ scope.row.Xn }}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="RotorSync" label="Rotor Sync.">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RotorSync | numberFilter}}</p>
+                    <p>{{scope.row.RotorSync | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="MotorSpeed" label="输出转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.MotorSpeed | numberFilter}}</p>
+                    <p>{{scope.row.MotorSpeed | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="BladePass" label="皮带转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.BladePass | numberFilter}}</p>
+                    <p>{{scope.row.BladePass | tableFilter}}</p>
                   </template>
                 </el-table-column>
               </el-table>
@@ -278,17 +278,17 @@
                 <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
                 <el-table-column prop="RotorSync" label="Rotor Sync.">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RotorSync | numberFilter}}</p>
+                    <p>{{scope.row.RotorSync | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="OilWhirl" label="输出转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.OilWhirl | numberFilter}}</p>
+                    <p>{{scope.row.OilWhirl | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="Wear" label="皮带转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.Wear | numberFilter}}</p>
+                    <p>{{scope.row.Wear | tableFilter}}</p>
                   </template>
                 </el-table-column>
               </el-table>
@@ -330,17 +330,17 @@
                 <el-table-column prop="Xn" label="RPM（Hz）"></el-table-column>
                 <el-table-column prop="RPM_IN" label="输入转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RPM_IN | numberFilter}}</p>
+                    <p>{{scope.row.RPM_IN | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="RPM_OUT" label="输出转速">
                   <template slot-scope="scope">
-                    <p>{{scope.row.RPM_OUT | numberFilter}}</p>
+                    <p>{{scope.row.RPM_OUT | tableFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column prop="BELT_RPM" label="皮带速度">
                   <template slot-scope="scope">
-                    <p>{{scope.row.BELT_RPM | numberFilter}}</p>
+                    <p>{{scope.row.BELT_RPM | tableFilter}}</p>
                   </template>
                 </el-table-column>
               </el-table>
@@ -389,7 +389,7 @@ export default {
       item1Data: [], // 电机表格数据
       item2Form: {
         // 齿轮输入表单  NumberOfTeeth:1.0, InputSpeed:2.0, OutputSpeed:3.0, InputNumberOfTeeth:4.0
-        NumberOfTeeth: "",
+        OutputNumberOfTeeth: "",
         InputSpeed: "",
         OutputSpeed: "",
         InputNumberOfTeeth: ""
@@ -495,7 +495,6 @@ export default {
               console.log("计算电机表单提交返回的数据", res);
               if (res.ListData) {
                 this.item1Data = res.ListData;
-                this.handleClearForm(this.item1Form);
               }
               this.item1Res.MotorSpeed = res.MotorSpeed;
               this.item1Res.SynchronousSpeed = res.SynchronousSpeed;
@@ -503,6 +502,7 @@ export default {
               this.item1Res.Slip_CPM = res.Slip_CPM;
               this.item1Res.PPF_CPM = res.PPF_CPM;
               this.item1Res.RBPF_CPM = res.RBPF_CPM;
+              // this.handleClearForm(this.item1Form);
             }
           });
         }
@@ -514,6 +514,7 @@ export default {
         let VibCalToolGears = window["YZ_VibCalToolGears"];
         if (VibCalToolGears) {
           VibCalToolGears(this.item2Form, res => {
+            console.log('齿轮查询参数',JSON.parse(JSON.stringify(this.item2Form)));
             if (res) {
               res = JSON.parse(res);
               console.log(
@@ -525,7 +526,7 @@ export default {
               this.item2Res.OutputSpeed = res.OutputSpeed;
               this.item2Res.InputOfTeeth = res.InputOfTeeth;
               this.item2Res.OutputOfTeeth = res.OutputOfTeeth;
-              this.handleClearForm(this.item2Form);
+              // this.handleClearForm(this.item2Form);
             }
           });
         }
@@ -551,7 +552,7 @@ export default {
               { date: "0.4-0.48X", name: "0.000", address: "0.000" }
             ];
             // 清空输入框
-            this.handleClearForm(this.item3Form);
+            // this.handleClearForm(this.item3Form);
           });
         }
       });
@@ -566,7 +567,7 @@ export default {
               res = JSON.parse(res);
               console.log("点击计算获取泵的数据", res);
               this.item4Data = res.ListData;
-              this.handleClearForm(this.item4Form);
+              // this.handleClearForm(this.item4Form);
             }
           });
         }
@@ -582,7 +583,7 @@ export default {
               res = JSON.parse(res);
               console.log("计算风机获取到的数据", res);
               this.item5Data = res.ListData;
-              this.handleClearForm(this.item5Form);
+              // this.handleClearForm(this.item5Form);
             }
           });
         }
@@ -598,7 +599,7 @@ export default {
               res = JSON.parse(res);
               console.log("计算滑动轴承获取的数据", res);
               this.item6Data = res.ListData;
-              this.handleClearForm(this.item6Form);
+              // this.handleClearForm(this.item6Form);
             }
           });
         }
@@ -619,7 +620,7 @@ export default {
             this.item7Res.DriverPulleyRPM = res.DriverPulleyRPM;
             this.item7Res.DrivenPulleyRPM = res.DrivenPulleyRPM;
             this.item7Res.BeltRPM = res.BeltRPM;
-            this.handleClearForm(this.item7Form);
+            // this.handleClearForm(this.item7Form);
           }
         });
       });
@@ -992,7 +993,7 @@ export default {
                 }
                 &:nth-child(4) {
                   top: 153px;
-                  left: 276px;
+                  left: 267px;
                 }
               }
             }

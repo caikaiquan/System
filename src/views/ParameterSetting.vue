@@ -111,7 +111,7 @@
               :key="index+Math.random()"
               class="scope-cell left"
               v-show="!scope.row.editStatus"
-            >0. {{item.ChannelNote}}</p>
+            >{{index}}. {{item.ChannelNote}}</p>
             <p
               class="scope-cell left"
               v-show="scope.row.editStatus"
@@ -395,7 +395,13 @@ export default {
       // 对参数进行校验
       let AddNewCollector = window["YZ_AddNewCollector"];
       if (AddNewCollector) {
+        for(let key in this.form){
+          if(['StoreIntervel','Channel0Note','Channel1Note','Channel2Note','Channel3Note'].includes(key)){
+            this.form[key] = this.form[key] - 0;
+          }
+        }
         AddNewCollector(this.form, (res, data) => {
+          // console.log('111111122222222',JSON.parse(JSON.stringify(this.form)))
           console.log(res, data);
           if (res == 0) {
             this.$message.success(data);

@@ -11,13 +11,39 @@
         @click="handleShowStatus('pb')"
         size="small"
       >瀑布图</el-button>
+      <el-button
+        :type="showStatus === 'sdpp'?'primary':''"
+        @click="handleShowStatus('sdpp')"
+        size="small"
+      >速度频谱</el-button>
+      <el-button
+        :type="showStatus === 'qst'?'primary':''"
+        @click="handleShowStatus('qst')"
+        size="small"
+      >趋势图</el-button>
+      <el-button
+        :type="showStatus === 'blt'?'primary':''"
+        @click="handleShowStatus('blt')"
+        size="small"
+      >包络图</el-button>
+      <el-button
+        :type="showStatus === 'wyt'?'primary':''"
+        @click="handleShowStatus('wyt')"
+        size="small"
+      >位移图</el-button>
     </header>
     <div class="containter">
-      <div class="left open" :class="collapseShow?'open':'close'">
+      <div
+        class="left open"
+        v-show="showStatus !== 'qst' && showStatus !== 'wyt'"
+        :class="collapseShow ?'open':'close'"
+      >
         <i class="iconfont icon-caidan" @click="collapseShow = !collapseShow"></i>
         <div class="time-list" :style="'height:'+timeList*24+'px'">
           <el-collapse-transition>
-            <div v-show="collapseShow && showStatus === 'pp'">
+            <div
+              v-show="collapseShow && (showStatus === 'pp' || showStatus === 'sdpp' || showStatus === 'blt')"
+            >
               <el-radio-group v-model="timeRadio" @change="getDrawData">
                 <el-radio
                   :label="item.value"
@@ -41,7 +67,10 @@
           </el-collapse-transition>
         </div>
       </div>
-      <div class="right" :class="collapseShow?'small':'big'">
+      <div
+        class="right"
+        :class="collapseShow && showStatus !== 'qst' && showStatus !== 'wyt'?'small':'big'"
+      >
         <div class="select-box">
           <div class="cjq">
             采集器：
@@ -75,7 +104,7 @@
               align="right"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              :default-time="['12:00:00', '12:00:00']"
+              :default-time="['00:00:00', '00:00:00']"
               @change="getPointsOfDate"
             ></el-date-picker>
           </div>
@@ -113,6 +142,21 @@
         <div class="waterfall-plot" v-show="showStatus === 'pb'">
           <div class="waterfall-plot-map"></div>
         </div>
+        <div class="speed-spectrum" v-show="showStatus === 'sdpp'">
+          <div class="speed-spectrum-map"></div>
+        </div>
+        <div class="acceleration-trend" v-show="showStatus === 'qst'">
+          <div class="acceleration-trend-map"></div>
+        </div>
+        <div class="speed-trend" v-show="showStatus === 'qst'">
+          <div class="speed-trend-map"></div>
+        </div>
+        <div class="envelope-diagram" v-show="showStatus === 'blt'">
+          <div class="envelope-diagram-map"></div>
+        </div>
+        <div class="displacement" v-show="showStatus === 'wyt'">
+          <div class="displacement-map"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -142,10 +186,7 @@ export default {
       diagramData: {}, // 频谱图右侧显示
       checkList: [], // 瀑布图日期复选数组
       // fallPlotEachrt:null,
-      pbRate: 1, // 屏幕尺寸1920 是1
-      syEchart: null, // 时域图的echart对象
-      ppEchart: null, // 频谱图的echart对象
-      pbEachrt: null // 瀑布图的echart对象
+      pbRate: 1 // 屏幕尺寸1920 是1
     };
   },
   created() {
@@ -189,6 +230,60 @@ export default {
       "setChannelId",
       "setTimeQuantum"
     ]),
+    handleShowStatus(type) {
+      if (type === this.showStatus) {
+        return;
+      }
+      this.showStatus = type;
+      this.$forceUpdate();
+      this.$nextTick(() => {
+        switch (this.showStatus) {
+            case "pp":
+              if (this.timeRadio) {
+                this.getSpectrogram();
+                this.getDomainDiagram();
+              }
+              break;
+            case "pb":
+              this.handleChangeCheckList();
+              break;
+            case "sdpp":
+              if (this.timeRadio) {
+                this.handleSpeedSpectrum();
+              }
+              break;
+            case "qst":
+              if (this.timeQuantum) {
+                this.handleAccelerationTrend();
+                this.handleSpeedTrend();
+              }
+              break;
+            case "blt":
+              if (this.timeRadio) {
+                this.handleEnvelopeDiagram();
+              }
+              break;
+            case "wyt":
+              if (this.timeQuantum) {
+                this.handleDisplacement();
+              }
+              break;
+          }
+      });
+    },
+    // 清空数据清空制图
+    handleClearAll() {
+      this.timeList = [];
+      this.timeRadio = "";
+      // this.drawSpectrogram();
+      // this.drawTimeDomainDiagram();
+      // this.drawWaterfallPlot();
+      // this.drawSpeedSpectrum();
+      // this.drawAccelerationTrend();
+      // this.drawSpeedTrend();
+      // this.drawEnvelopeDiagram();
+      // this.drawDisplacement();
+    },
     // 获取所有采集器信息
     getGetAllCollector() {
       if (this.getAllCollector) {
@@ -233,10 +328,11 @@ export default {
         this.ChannelNotes = filterChannelNotes.ChannelNotes;
         this.ChannelId = this.ChannelNotes[0].ChannelId;
       }
-      this.timeList = [];
-      this.timeRadio = "";
-      this.drawSpectrogram();
-      this.drawTimeDomainDiagram();
+      this.handleClearAll();
+      // this.timeList = [];
+      // this.timeRadio = "";
+      // this.drawSpectrogram();
+      // this.drawTimeDomainDiagram();
       if (this.timeQuantum && this.timeQuantum.length) {
         this.getPointsOfDate();
         console.log("这里是切换采集器触发获取时间段");
@@ -244,10 +340,11 @@ export default {
     },
 
     handleChangeTd() {
-      this.timeList = [];
-      this.timeRadio = "";
-      this.drawSpectrogram();
-      this.drawTimeDomainDiagram();
+      this.handleClearAll();
+      // this.timeList = [];
+      // this.timeRadio = "";
+      // this.drawSpectrogram();
+      // this.drawTimeDomainDiagram();
       if (this.timeQuantum && this.timeQuantum.length) {
         this.getPointsOfDate();
         console.log("这里是切换通道");
@@ -257,10 +354,11 @@ export default {
     // 获取指定采集器，指定通道，指定时间段所有采集数据时间点
     getPointsOfDate() {
       if (!this.timeQuantum) {
-        this.timeList = [];
-        this.timeRadio = "";
-        this.drawSpectrogram();
-        this.drawTimeDomainDiagram();
+        this.handleClearAll();
+        // this.timeList = [];
+        // this.timeRadio = "";
+        // this.drawSpectrogram();
+        // this.drawTimeDomainDiagram();
         return;
       }
       this.setTimeQuantum(this.timeQuantum);
@@ -276,11 +374,11 @@ export default {
           console.log("获取时间段参数", option);
           if (res == 0 && data) {
             data = JSON.parse(data);
-            console.log("根据筛选条件获取时间段", option, data);
+            // console.log("根据筛选条件获取时间段", option, data);
             if (data.DatePoint) {
               this.timeList = data.DatePoint.map(item => ({ value: item }));
               this.collapseShow = true;
-              console.log("获取到时间段列表", this.timeList);
+              // console.log("获取到时间段列表", this.timeList);
             }
           } else {
             this.collapseShow = false;
@@ -288,11 +386,29 @@ export default {
           }
         });
       }
+
+      // 如果选中的是趋势图
+      if (this.showStatus === "qst") {
+        this.handleAccelerationTrend();
+        this.handleSpeedTrend();
+      } else if (this.showStatus === "wyt") {
+        this.handleDisplacement();
+      }
     },
     // 切换radio的时间选择
     getDrawData() {
-      this.getSpectrogram();
-      this.getDomainDiagram();
+      switch (this.showStatus) {
+        case "pp":
+          this.getSpectrogram();
+          this.getDomainDiagram();
+          break;
+        case "sdpp":
+          this.handleSpeedSpectrum();
+          break;
+        case "blt":
+          this.handleEnvelopeDiagram();
+          break;
+      }
     },
     // 获取时域图制图数据
     getSpectrogram() {
@@ -309,7 +425,7 @@ export default {
         GetTimeDomainPlotData(option, (res, data) => {
           if (res == 0 && data) {
             data = JSON.parse(data);
-            console.log("获取到制图数据", data);
+            console.log("获取时域图制图数据", JSON.parse(JSON.stringify(data)));
             this.drawSpectrogram(data);
             this.spectrogramData.DataCount = data.DataCount;
             this.spectrogramData.Rate = data.Rate;
@@ -326,7 +442,6 @@ export default {
         document.querySelector(".spectrogram-map")
       );
       echarts.clear();
-      this.syEchart = null;
       if (!res) {
         this.spectrogramData.DataCount = "";
         this.spectrogramData.Rate = "";
@@ -378,8 +493,8 @@ export default {
         series: {
           name: "G",
           type: "line",
-          lineStyle:{
-            width:1,
+          lineStyle: {
+            width: 1
           },
           data: data.map(function(item) {
             return item[1];
@@ -406,7 +521,6 @@ export default {
           }
         }
       };
-      this.syEchart = echarts;
       echarts.setOption(option);
     },
     // 获取频谱图数据
@@ -438,7 +552,6 @@ export default {
         document.querySelector(".time-domain-diagram-map")
       );
       echarts.clear();
-      this.ppEchart = null;
       if (!res) {
         // this.diagramData = {};
         this.diagramData.M = "";
@@ -491,8 +604,8 @@ export default {
         series: {
           name: "G",
           type: "line",
-          lineStyle:{
-            width:1,
+          lineStyle: {
+            width: 1
           },
           data: data.map(function(item) {
             return item[1];
@@ -519,8 +632,6 @@ export default {
           }
         }
       };
-
-      this.ppEchart = echarts;
       echarts.setOption(option);
     },
     // 复选框勾选
@@ -577,8 +688,7 @@ export default {
         this.drawWaterfallPlot(data);
       }
     },
-    // 获取瀑布图制图数据
-
+    //瀑布图制图
     drawWaterfallPlot(res) {
       let echarts = this.$echarts.init(
         document.querySelector(".waterfall-plot-map")
@@ -670,11 +780,548 @@ export default {
       });
       echarts.setOption(option);
     },
-    handleShowStatus(type) {
-      if (type === this.showStatus) {
+    // 获取速度频谱图数据
+    handleSpeedSpectrum() {
+      let GetSpectrogramData = window["YZ_GetSpectrogramData"];
+      if (GetSpectrogramData) {
+        let option = {
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
+          DatePoint: this.timeRadio
+        };
+
+        GetSpectrogramData(option, (res, data) => {
+          if (data && res == 0) {
+            data = JSON.parse(data);
+            console.log("速度频谱图", data);
+            this.drawSpeedSpectrum(data);
+          } else {
+            this.drawSpeedSpectrum();
+          }
+        });
+      }
+    },
+    // 速度频谱制图
+    drawSpeedSpectrum(res) {
+      let echarts = this.$echarts.init(
+        document.querySelector(".speed-spectrum-map")
+      );
+      echarts.clear();
+      if (!res) {
         return;
       }
-      this.showStatus = type;
+      let data = res.Points;
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "速度频谱",
+            textStyle: {
+              fontSize: "15",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        dataZoom: [
+          {
+            // startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        series: {
+          name: "G",
+          type: "line",
+          lineStyle: {
+            width: 1
+          },
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
+      };
+      echarts.setOption(option);
+    },
+
+    // 获取加速度趋势数据
+    handleAccelerationTrend() {
+      // 如果时间段没选
+      if (!this.timeQuantum) {
+        return;
+      }
+      let GetAccelerationTrend = window["YZ_GetAccelerationTrend"];
+      if (GetAccelerationTrend) {
+        GetAccelerationTrend(
+          {
+            CollectorId: this.CollectorId,
+            ChannelId: this.ChannelId,
+            StartDate: this.timeQuantum[0],
+            EndDate: this.timeQuantum[1]
+          },
+          (res, data) => {
+            if (res == 0 && data) {
+              data = JSON.parse(data);
+              console.log("获取加速度趋势数据", data);
+              this.drawAccelerationTrend(data);
+            } else {
+              this.drawAccelerationTrend();
+            }
+          }
+        );
+      }
+    },
+    // 绘制加速度趋势
+    drawAccelerationTrend(res) {
+      let echarts = this.$echarts.init(
+        document.querySelector(".acceleration-trend-map")
+      );
+      echarts.clear();
+      if (!res) {
+        return;
+      }
+      let data = res.Points;
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "加速度趋势",
+            textStyle: {
+              fontSize: "15",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        dataZoom: [
+          {
+            // startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        series: {
+          name: "G",
+          type: "line",
+          lineStyle: {
+            width: 1
+          },
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
+      };
+      echarts.setOption(option);
+    },
+    // 获取速度趋势数据
+    handleSpeedTrend() {
+      // 如果时间段没选
+      if (!this.timeQuantum) {
+        return;
+      }
+      let GetVelocityTrend = window["YZ_GetVelocityTrend"];
+      if (GetVelocityTrend) {
+        GetVelocityTrend(
+          {
+            CollectorId: this.CollectorId,
+            ChannelId: this.ChannelId,
+            StartDate: this.timeQuantum[0],
+            EndDate: this.timeQuantum[1]
+          },
+          (res, data) => {
+            if (res == 0 && data) {
+              data = JSON.parse(data);
+              console.log("获取速度趋势数据", data);
+              this.drawSpeedTrend(data);
+            } else {
+              this.drawSpeedTrend();
+            }
+          }
+        );
+      }
+    },
+    // 绘制速度趋势图
+    drawSpeedTrend(res) {
+      let echarts = this.$echarts.init(
+        document.querySelector(".speed-trend-map")
+      );
+      echarts.clear();
+      if (!res) {
+        return;
+      }
+      let data = res.Points;
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "速度趋势",
+            textStyle: {
+              fontSize: "15",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        dataZoom: [
+          {
+            // startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        series: {
+          name: "G",
+          type: "line",
+          lineStyle: {
+            width: 1
+          },
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
+      };
+      echarts.setOption(option);
+    },
+
+    // 获取包络图数据
+    handleEnvelopeDiagram() {
+      if (!this.timeRadio) {
+        return;
+      }
+      let GetEnvelopePlotData = window["YZ_GetEnvelopePlotData"];
+      if (GetEnvelopePlotData) {
+        let option = {
+          CollectorId: this.CollectorId,
+          ChannelId: this.ChannelId,
+          DatePoint: this.timeRadio
+        };
+        GetEnvelopePlotData(option, (res, data) => {
+          if (res == 0 && data) {
+            data = JSON.parse(data);
+            console.log("获取包络图数据", JSON.parse(JSON.stringify(data)));
+            this.drawEnvelopeDiagram(data);
+          } else {
+            this.drawEnvelopeDiagram();
+          }
+        });
+      }
+    },
+    // 绘制包络图
+    drawEnvelopeDiagram(res) {
+      let echarts = this.$echarts.init(
+        document.querySelector(".envelope-diagram-map")
+      );
+      echarts.clear();
+      if (!res) {
+        return;
+      }
+      let data = res.Points;
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "包络图",
+            textStyle: {
+              fontSize: "15",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        dataZoom: [
+          {
+            // startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        series: {
+          name: "G",
+          type: "line",
+          lineStyle: {
+            width: 1
+          },
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
+      };
+      echarts.setOption(option);
+    },
+
+    // 获取位移图数据
+    handleDisplacement() {
+      // 如果时间段没选
+      if (!this.timeQuantum) {
+        return;
+      }
+      let GetDisplacementTrend = window["YZ_GetDisplacementTrend"];
+      if (GetDisplacementTrend) {
+        GetDisplacementTrend(
+          {
+            CollectorId: this.CollectorId,
+            ChannelId: this.ChannelId,
+            StartDate: this.timeQuantum[0],
+            EndDate: this.timeQuantum[1]
+          },
+          (res, data) => {
+            if (res == 0 && data) {
+              data = JSON.parse(data);
+              console.log("获取加速度趋势数据", data);
+              this.drawDisplacement(data);
+            } else {
+              this.drawDisplacement();
+            }
+          }
+        );
+      }
+    },
+    // 绘制位移图
+    drawDisplacement(res) {
+      let echarts = this.$echarts.init(
+        document.querySelector(".displacement-map")
+      );
+      echarts.clear();
+      if (!res) {
+        return;
+      }
+      let data = res.Points;
+      let option = {
+        title: [
+          {
+            left: "center",
+            top: 20,
+            text: "位移图",
+            textStyle: {
+              fontSize: "15",
+              fontWeight: 600,
+              color: "#409EFF"
+            }
+          }
+        ],
+        tooltip: {
+          trigger: "axis"
+        },
+        xAxis: {
+          data: data.map(function(item) {
+            return item[0];
+          })
+        },
+        yAxis: {
+          splitLine: {
+            show: false
+          }
+        },
+        dataZoom: [
+          {
+            // startValue: "2014-06-01"
+          },
+          {
+            type: "inside"
+          }
+        ],
+        grid: [
+          {
+            left: "40",
+            right: "40"
+          }
+        ],
+        series: {
+          name: "G",
+          type: "line",
+          lineStyle: {
+            width: 1
+          },
+          data: data.map(function(item) {
+            return item[1];
+          }),
+          markLine: {
+            silent: true,
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+        }
+      };
+      echarts.setOption(option);
     }
   }
 };
@@ -695,7 +1342,7 @@ export default {
     border-bottom: 1px solid #ccc;
   }
   .containter {
-    width: calc(100vw - 120px);
+    width: calc(100vw - 180px);
     .left {
       float: left;
       background: #fff;
@@ -722,7 +1369,7 @@ export default {
         padding-left: 10px;
         min-height: calc(100vh - 110px);
         overflow-y: auto;
-        overflow-x:hidden;
+        overflow-x: hidden;
         @extend .scroll_bar_mixin;
         .el-radio {
           height: 24px;
@@ -740,11 +1387,11 @@ export default {
       padding-left: 20px;
       padding-bottom: 20px;
       &.big {
-        width: calc(100vw - 150px);
+        width: calc(100vw - 210px);
       }
 
       &.small {
-        width: calc(100vw - 310px);
+        width: calc(100vw - 370px);
       }
     }
     .select-box {
@@ -806,6 +1453,10 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
         // border: 1px solid #ccc;
       }
     }
@@ -820,6 +1471,10 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
         // border: 1px solid #ccc;
       }
     }
@@ -832,6 +1487,80 @@ export default {
         height: calc(100vh - 300px);
         box-sizing: border-box;
         padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .speed-spectrum {
+      width: calc(100% - 20px);
+      position: relative;
+      .speed-spectrum-map {
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
+        padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .acceleration-trend {
+      width: calc(100% - 20px);
+      position: relative;
+      .acceleration-trend-map {
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
+        padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .speed-trend {
+      width: calc(100% - 20px);
+      position: relative;
+      .speed-trend-map {
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
+        padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .envelope-diagram {
+      width: calc(100% - 20px);
+      position: relative;
+      .envelope-diagram-map {
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
+        padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    .displacement {
+      width: calc(100% - 20px);
+      position: relative;
+      .displacement-map {
+        width: calc(100% - 100px);
+        height: calc(50vh - 80px);
+        padding: 0 20px;
+        &>div{
+          width: 100%;
+          height: 100%;
+        }
       }
     }
   }

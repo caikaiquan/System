@@ -678,7 +678,7 @@ export default {
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 600;
         color: #fff;
       }

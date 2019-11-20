@@ -64,6 +64,7 @@ export default {
     border-radius: 3px;
     font-weight: bold;
     cursor: pointer;
+    z-index: 999;
   }
 
   .minimize {

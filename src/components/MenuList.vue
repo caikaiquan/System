@@ -60,5 +60,8 @@ export default {
   i.iconfont {
     margin-right: 5px;
   }
+  .el-menu-item{
+    font-size: 18px;
+  }
 }
 </style>

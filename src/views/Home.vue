@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <div class="left">
+      <img src="../assets/images/logo.png" alt="">
       <menu-list></menu-list>
     </div>
     <div class="right">

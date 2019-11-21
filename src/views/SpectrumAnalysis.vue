@@ -668,24 +668,7 @@ export default {
           }
         });
       } else {
-        let data = require("./1.json");
-        console.log("获取到瀑布图数据", data);
-        data.forEach(item => {
-          item.Points = item.Points.map(v => {
-            let [a, b, c] = v;
-            if (c < 1) {
-              c = Math.ceil(Math.random() * 200);
-            }
-            v = [a, b, c];
-            return v;
-          });
-        });
-
-        console.log(JSON.stringify(data));
-        if (this.checkList.length === 1) {
-          data = data.filter((item, index) => index === 0);
-        }
-        this.drawWaterfallPlot(data);
+        this.drawWaterfallPlot();
       }
     },
     //瀑布图制图

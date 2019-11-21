@@ -17,10 +17,10 @@
         <el-input v-model="modelValue"></el-input>
       </div>
       <div class="item">
-        <el-button type="primary" @click='getBrandList'>查询</el-button>
+        <el-button type="primary" @click='getBearingList'>查询</el-button>
       </div>
       <div class="item">
-        <el-button type="primary">清空</el-button>
+        <el-button type="primary" @click="handleClear">清空</el-button>
       </div>
     </div>
     <div class="container">
@@ -46,26 +46,52 @@ export default {
   data() {
     return {
       brandValue: "", // 品牌
-      BrandList: [{ value: "FAG" }, { value: "NSK" }, { value: "SKF" }],
+      BrandList: [],
       modelValue: "", // 型号
       tableData: [],
     };
   },
+  mounted(){
+    this.getBrandList();
+    this.getBearingList();
+  },
   methods:{
-    // 获取轴承数据
+    // 获取品牌数据
     getBrandList(){
+      let GetAllBearingBrand = window['YZ_GetAllBearingBrand'];
+      if(GetAllBearingBrand){
+        GetAllBearingBrand({},(res,data) =>{
+          if(res == 0 && data){
+            data = JSON.parse(data);
+            console.log('获取品牌数据',JSON.parse(JSON.stringify(data)))
+            this.BrandList = data.BrandList.map( item =>{
+              return {value:item}
+            })
+          }
+        })
+      }
+    },
+    // 获取轴承数据
+    getBearingList(){
       let GetAllBearingList = window['YZ_GetAllBearingList'];
       if(GetAllBearingList){
         GetAllBearingList({Brand:this.brandValue, Model:this.modelValue},(res,data) =>{
           if(res == 0 && data){
             data = JSON.parse(data);
             console.log('获取到轴承数据',JSON.parse(JSON.stringify(data)))
-            this.BrandList = data.BrandList;
+            this.tableData = data.BearingList.splice(0,10);
           }else{
-            this.BrandList = [];
+            this.tableData = [];
           }
         })
       }
+    },
+    // 清空数据
+    handleClear(){
+      this.brandValue = '';
+      this.modelValue = '';
+      this.BrandList = [];
+      this.tableData = [];
     }
   }
 };

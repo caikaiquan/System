@@ -22,6 +22,7 @@ import {
     FormItem,
     Message,
     Drawer,
+    Pagination
 } from 'element-ui'
 
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition';
@@ -49,6 +50,7 @@ Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Drawer)
+Vue.use(Pagination)
 
 
 Vue.prototype.$message = Message;

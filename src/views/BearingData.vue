@@ -17,7 +17,7 @@
         <el-input v-model="modelValue"></el-input>
       </div>
       <div class="item">
-        <el-button type="primary" @click='getBearingList'>查询</el-button>
+        <el-button type="primary" @click="handleQuery">查询</el-button>
       </div>
       <div class="item">
         <el-button type="primary" @click="handleClear">清空</el-button>
@@ -34,8 +34,16 @@
         <el-table-column prop="Cage" label="保持架"></el-table-column>
       </el-table>
       <div class="total">
-        <p>轴承库总数：</p>
-        <P>{{tableData.length}}</P>
+        <el-pagination
+          ref="pagination"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="pageNum"
+          :page-sizes="[10, 20, 30, 40, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
       </div>
     </div>
   </div>
@@ -49,49 +57,83 @@ export default {
       BrandList: [],
       modelValue: "", // 型号
       tableData: [],
+      pageSize: 10, // 每页显示条数
+      pageNum: 1, // 显示页码
+      total:0
     };
   },
-  mounted(){
+  mounted() {
     this.getBrandList();
     this.getBearingList();
   },
-  methods:{
+  methods: {
     // 获取品牌数据
-    getBrandList(){
-      let GetAllBearingBrand = window['YZ_GetAllBearingBrand'];
-      if(GetAllBearingBrand){
-        GetAllBearingBrand({},(res,data) =>{
-          if(res == 0 && data){
+    getBrandList() {
+      let GetAllBearingBrand = window["YZ_GetAllBearingBrand"];
+      if (GetAllBearingBrand) {
+        GetAllBearingBrand({}, (res, data) => {
+          if (res == 0 && data) {
             data = JSON.parse(data);
-            console.log('获取品牌数据',JSON.parse(JSON.stringify(data)))
-            this.BrandList = data.BrandList.map( item =>{
-              return {value:item}
-            })
+            console.log("获取品牌数据", JSON.parse(JSON.stringify(data)));
+            this.BrandList = data.BrandList.map(item => {
+              return { value: item };
+            });
           }
-        })
+        });
       }
     },
     // 获取轴承数据
-    getBearingList(){
-      let GetAllBearingList = window['YZ_GetAllBearingList'];
-      if(GetAllBearingList){
-        GetAllBearingList({Brand:this.brandValue, Model:this.modelValue},(res,data) =>{
-          if(res == 0 && data){
-            data = JSON.parse(data);
-            console.log('获取到轴承数据',JSON.parse(JSON.stringify(data)))
-            this.tableData = data.BearingList.splice(0,10);
-          }else{
-            this.tableData = [];
+    getBearingList() {
+      let GetAllBearingList = window["YZ_GetAllBearingList"];
+      if (GetAllBearingList) {
+        GetAllBearingList(
+          {
+            Brand: this.brandValue,
+            Model: this.modelValue,
+            pageSize: this.pageSize,
+            pageNum: this.pageNum
+          },
+          (res, data) => {
+            if (res == 0 && data) {
+              data = JSON.parse(data);
+              console.log("获取到轴承数据", JSON.parse(JSON.stringify(data)));
+              this.tableData = data.BearingList;
+              this.total = data.total;
+            } else {
+              this.tableData = [];
+              this.total = 0;
+              this.pageNum = 1;
+            }
           }
-        })
+        );
       }
     },
     // 清空数据
-    handleClear(){
-      this.brandValue = '';
-      this.modelValue = '';
+    handleClear() {
+      this.brandValue = "";
+      this.modelValue = "";
       this.BrandList = [];
       this.tableData = [];
+      this.pageSize = 10;
+      this.pageNum = 1;
+      this.total = 0;
+    },
+    // 点击查询
+    handleQuery() {
+      this.pageNum = 1;
+      this.getBearingList();
+    },
+    // 切换页码
+    handleSizeChange(size) {
+      console.log("size", size);
+      this.pageSize = size;
+      this.getBearingList();
+    },
+    // 切换每页显示条数
+    handleCurrentChange(page) {
+      console.log("page", page);
+      this.pageNum = page;
+      this.getBearingList();
     }
   }
 };
@@ -169,14 +211,7 @@ export default {
   .total {
     margin-top: 10px;
     display: flex;
-    justify-content: flex-end;
-    font-size: 18px;
-    p + p {
-      color: #ff0000;
-      margin-left: 10px;
-      margin-right: 40px;
-      font-weight: 600;
-    }
+    justify-content: center;
   }
 }
 </style>

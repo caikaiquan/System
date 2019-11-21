@@ -105,9 +105,9 @@
             <div class="tbale-con">
               <el-table :data="item2Data" border style="width: 100%" class="item7-table">
                 <el-table-column prop="date" label="RPM（Hz）">
-                  <template>
+                  <template slot-scope="scope">
                     <div class="item7-cell">
-                      <p>INPUT GEAR</p>
+                      <p>{{scope.row.value}} GEAR</p>
                       <p>GMF</p>
                       <p>-1xSB +1xSB</p>
                       <p>-2xSB +2xSB</p>
@@ -522,6 +522,10 @@ export default {
                 JSON.parse(JSON.stringify(res))
               );
               this.item2Data = res.ListData;
+              if(this.item2Data.length){
+                this.item2Data[0].value = 'INPUT';
+                this.item2Data[1].value = 'OUTPUT';
+              }
               this.item2Res.InputSpeed = res.InputSpeed;
               this.item2Res.OutputSpeed = res.OutputSpeed;
               this.item2Res.InputOfTeeth = res.InputOfTeeth;
@@ -675,7 +679,7 @@ export default {
       position: relative;
       .title {
         position: absolute;
-        top: 20px;
+        top: 30px;
         left: 50%;
         transform: translateX(-50%);
         font-size: 20px;

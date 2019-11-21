@@ -396,7 +396,7 @@ export default {
       let AddNewCollector = window["YZ_AddNewCollector"];
       if (AddNewCollector) {
         for(let key in this.form){
-          if(['StoreIntervel','Channel0Note','Channel1Note','Channel2Note','Channel3Note'].includes(key)){
+          if(['StoreIntervel','IEPESensitivity0','IEPESensitivity1','IEPESensitivity2','IEPESensitivity3'].includes(key)){
             this.form[key] = this.form[key] - 0;
           }
         }
@@ -531,7 +531,6 @@ export default {
     },
     handleAdd() {
       console.log(JSON.parse(JSON.stringify(this.form)));
-
       // 对表单数据进行校验
       // ip校验
       let reg = /(?=(\b|\D))(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))(?=(\b|\D))/;

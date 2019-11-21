@@ -104,7 +104,7 @@
               align="right"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              :default-time="['00:00:00', '00:00:00']"
+              :default-time="['00:00:00', '23:59:59']"
               @change="getPointsOfDate"
             ></el-date-picker>
           </div>
@@ -782,15 +782,15 @@ export default {
     },
     // 获取速度频谱图数据
     handleSpeedSpectrum() {
-      let GetSpectrogramData = window["YZ_GetSpectrogramData"];
-      if (GetSpectrogramData) {
+      let GetFreTransA2vPlotData = window["YZ_GetFreTrans_a2vPlotData"];
+      if (GetFreTransA2vPlotData) {
         let option = {
           CollectorId: this.CollectorId,
           ChannelId: this.ChannelId,
           DatePoint: this.timeRadio
         };
 
-        GetSpectrogramData(option, (res, data) => {
+        GetFreTransA2vPlotData(option, (res, data) => {
           if (data && res == 0) {
             data = JSON.parse(data);
             console.log("速度频谱图", data);
@@ -1453,10 +1453,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
         // border: 1px solid #ccc;
       }
     }
@@ -1471,10 +1467,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
         // border: 1px solid #ccc;
       }
     }
@@ -1487,10 +1479,6 @@ export default {
         height: calc(100vh - 300px);
         box-sizing: border-box;
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
 
@@ -1501,10 +1489,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
 
@@ -1515,10 +1499,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
 
@@ -1529,10 +1509,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
 
@@ -1543,10 +1519,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
 
@@ -1557,10 +1529,6 @@ export default {
         width: calc(100% - 100px);
         height: calc(50vh - 80px);
         padding: 0 20px;
-        &>div{
-          width: 100%;
-          height: 100%;
-        }
       }
     }
   }

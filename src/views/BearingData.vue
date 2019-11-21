@@ -2,7 +2,7 @@
   <div class="bearing-data" v-show='false'>
     <div class="header">
       <div class="item brand">
-        品牌：
+        <span>品牌：</span>  
         <el-select v-model="brandValue" placeholder="请选择">
           <el-option
             v-for="item in BrandList"
@@ -11,6 +11,10 @@
             :value="item.value"
           ></el-option>
         </el-select>
+      </div>
+      <div class="item model">
+        <span>型号：</span>
+        <el-input v-model="modelValue"></el-input>
       </div>
     </div>
     <div class="container"></div>
@@ -21,16 +25,17 @@
 export default {
   data(){
     return{
-      brandValue:"",
+      brandValue:"", // 品牌
       BrandList:[
         {value:"FAG"},{value:"NSK"},{value:"SKF"}
-      ]
+      ],
+      modelValue:"",// 型号
     }
   }
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 @import "../assets/css/base.scss";
 .bearing-data {
   width: 100%;
@@ -43,10 +48,22 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    background-color: red;
     display: flex;
     align-items: center;
     padding-left: 20px;
+    .item{
+      display: flex;
+      align-items: center;
+      &>span{
+        margin-right: 10px;
+      }
+      .el-select,
+      .el-input
+      {
+        width: 140px;
+      }
+      margin-right: 20px;
+    }
   }
   .container {
     width: 100%;

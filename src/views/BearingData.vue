@@ -112,7 +112,6 @@ export default {
     handleClear() {
       this.brandValue = "";
       this.modelValue = "";
-      this.BrandList = [];
       this.tableData = [];
       this.pageSize = 50;
       this.pageNum = 1;

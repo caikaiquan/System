@@ -39,7 +39,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="pageNum"
-          :page-sizes="[10, 20, 30, 40, 50]"
+          :page-sizes="[10, 20, 30, 40, 50 , 100,200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -57,7 +57,7 @@ export default {
       BrandList: [],
       modelValue: "", // 型号
       tableData: [],
-      pageSize: 10, // 每页显示条数
+      pageSize: 50, // 每页显示条数
       pageNum: 1, // 显示页码
       total:0
     };
@@ -114,9 +114,10 @@ export default {
       this.modelValue = "";
       this.BrandList = [];
       this.tableData = [];
-      this.pageSize = 10;
+      this.pageSize = 50;
       this.pageNum = 1;
       this.total = 0;
+      this.getBearingList();
     },
     // 点击查询
     handleQuery() {
@@ -163,7 +164,7 @@ export default {
       }
       .el-select,
       .el-input {
-        width: 140px;
+        width: 180px;
       }
       margin-right: 20px;
     }

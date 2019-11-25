@@ -366,7 +366,7 @@
               <div class="num">
                 <p>
                   <span v-show="item8Active == 0">15</span>
-                  <span v-show="item8Active == 1">0.612</span>
+                  <span v-show="item8Active == 1">0.591</span>
                 </p>
                 <p>
                   <span v-show="item8Active == 0">10</span>
@@ -689,7 +689,7 @@ export default {
         this.$message.error("振动值过大请停止设备；");
         this.item8Value = "";
         return;
-      } else if (value > 0.612 && this.item8Active == 1) {
+      } else if (value > 0.591 && this.item8Active == 1) {
         this.lineShow = false;
         this.item8Value = "";
         this.$message.error("振动值过大请停止设备；");
@@ -699,7 +699,7 @@ export default {
       if (this.item8Active == 0) {
         this.styleTop = 199 - (199 * this.item8Value) / 15 + 78 + "px";
       } else {
-        this.styleTop = 199 - (199 * this.item8Value) / 0.612 + 78 + "px";
+        this.styleTop = 199 - (199 * this.item8Value) / 0.591 + 78 + "px";
       }
       this.lineShow = true;
     }
@@ -1150,6 +1150,7 @@ export default {
                       line-height: 30px;
                       input {
                         height: 30px;
+                        line-height: 30px;
                       }
                     }
                   }
@@ -1208,7 +1209,7 @@ export default {
 
               .line {
                 position: absolute;
-                width: 100%;
+                width: 400px;
                 height: 1px;
                 background: #000;
               }

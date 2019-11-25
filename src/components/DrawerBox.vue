@@ -18,7 +18,7 @@
           <div class="link-item" @click="handleChange('drawerFlag5')">风机风扇</div>
           <div class="link-item" @click="handleChange('drawerFlag6')">滑动轴承</div>
           <div class="link-item" @click="handleChange('drawerFlag7')">传动带</div>
-          <div class="link-item">振动参照</div>
+          <div class="link-item" @click="handleChange('drawerFlag8')">振动参照</div>
         </div>
       </div>
       <div class="drawer-content">
@@ -349,6 +349,41 @@
         </div>
         <div class="item" :class="{'show':draweFlags.drawerFlag8}">
           <i class="el-icon-d-arrow-right item-right" @click="draweFlags.drawerFlag8 = false"></i>
+          <i class="back" @click="draweFlags.drawerFlag8 = false">返回</i>
+          <i class="el-icon-d-arrow-right item-right" @click="handleClode"></i>
+          <div class="item-content item8">
+            <div class="header">振动严重程度</div>
+            <div class="img">
+              <div class="input-box">
+                <p>
+                  <el-input v-model="item8Value" @change="handleItem8Change"></el-input>
+                </p>
+                <p>
+                  <span :class="{'active':item8Active == 0}" @click="handleItem8('0')">mm/sec</span>
+                  <span :class="{'active':item8Active == 1}" @click="handleItem8('1')">ips</span>
+                </p>
+              </div>
+              <div class="num">
+                <p>
+                  <span v-show="item8Active == 0">15</span>
+                  <span v-show="item8Active == 1">0.612</span>
+                </p>
+                <p>
+                  <span v-show="item8Active == 0">10</span>
+                  <span v-show="item8Active == 1">0.408</span>
+                </p>
+                <p>
+                  <span v-show="item8Active == 0">5</span>
+                  <span v-show="item8Active == 1">0.204</span>
+                </p>
+                <p>
+                  <span v-show="item8Active == 0">0</span>
+                  <span v-show="item8Active == 1">0.000</span>
+                </p>
+              </div>
+              <div class="line" v-show="lineShow && item8Value>0" :style="{'top':styleTop}"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -445,9 +480,16 @@ export default {
         BeltRPM: ""
       },
       item7Data: [], // 传送带表格数据
-      errorMsg: "请检查输入框的值" // 输入框的值校验
+      errorMsg: "请检查输入框的值", // 输入框的值校验
+      item8Active: 0, //
+      styleTop: "",
+      item8Value: "",
+      lineShow: false,
+      flag: false,
+      tiemOutfun: null
     };
   },
+  mounted() {},
   methods: {
     handleChange(type) {
       for (let key in this.draweFlags) {
@@ -471,7 +513,7 @@ export default {
           if ((!formData[key] && formData[key] == 0) || formData[key] <= 0) {
             this.$message.error(this.errorMsg);
             return;
-          }else{
+          } else {
             formData[key] = formData[key] - 0;
           }
         }
@@ -514,7 +556,10 @@ export default {
         let VibCalToolGears = window["YZ_VibCalToolGears"];
         if (VibCalToolGears) {
           VibCalToolGears(this.item2Form, res => {
-            console.log('齿轮查询参数',JSON.parse(JSON.stringify(this.item2Form)));
+            console.log(
+              "齿轮查询参数",
+              JSON.parse(JSON.stringify(this.item2Form))
+            );
             if (res) {
               res = JSON.parse(res);
               console.log(
@@ -522,9 +567,9 @@ export default {
                 JSON.parse(JSON.stringify(res))
               );
               this.item2Data = res.ListData;
-              if(this.item2Data.length){
-                this.item2Data[0].value = 'INPUT';
-                this.item2Data[1].value = 'OUTPUT';
+              if (this.item2Data.length) {
+                this.item2Data[0].value = "INPUT";
+                this.item2Data[1].value = "OUTPUT";
               }
               this.item2Res.InputSpeed = res.InputSpeed;
               this.item2Res.OutputSpeed = res.OutputSpeed;
@@ -616,7 +661,7 @@ export default {
         VibCalToolBelts(this.item7Form, res => {
           if (res) {
             res = JSON.parse(res);
-            console.log('计算传送带获取的数据',res)
+            console.log("计算传送带获取的数据", res);
             this.item7Data = res.ListData;
             this.item7Res.TransmissionRatio = res.TransmissionRatio;
             this.item7Res.BeltLength = res.BeltLength;
@@ -629,6 +674,54 @@ export default {
         });
       });
     },
+
+    // 震动切换
+    handleItem8(value) {
+      this.item8Active = value;
+      if (!isNaN(this.item8Value - 0) && this.item8Value !== "") {
+        let num = this.item8Value - 0;
+        this.handleItem8Change(num);
+      }
+    },
+    handleItem8Change(value) {
+      if (value > 15 && this.item8Active == 0) {
+        this.lineShow = false;
+        this.$message.error("振动值过大请停止设备；");
+        this.item8Value = "";
+        return;
+      } else if (value > 0.612 && this.item8Active == 1) {
+        this.lineShow = false;
+        this.item8Value = "";
+        this.$message.error("振动值过大请停止设备；");
+        return;
+      }
+
+      if (this.item8Active == 0) {
+        this.styleTop = 199 - (199 * this.item8Value) / 15 + 78 + "px";
+      } else {
+        this.styleTop = 199 - (199 * this.item8Value) / 0.612 + 78 + "px";
+      }
+      this.lineShow = true;
+    }
+  },
+  watch: {
+    item8Value() {
+      if (!isNaN(this.item8Value - 0) && this.item8Value !== "") {
+        let num = this.item8Value - 0;
+        this.flag = true;
+        clearTimeout(this.tiemOutfun);
+        if (num < 0) {
+          this.item8Value = "";
+          return;
+        }
+        this.tiemOutfun = setTimeout(() => {
+          this.handleItem8Change(num);
+        }, 500);
+      } else {
+        this.lineShow = false;
+        this.item8Value = "";
+      }
+    }
   }
 };
 </script>
@@ -1036,6 +1129,88 @@ export default {
                     border-left: 1px solid #ebeef5;
                   }
                 }
+              }
+            }
+          }
+
+          &.item8 {
+            .img {
+              height: 590px;
+              background: url("../assets/images/9.png") no-repeat center;
+              padding-top: 47px;
+              position: relative;
+              .input-box {
+                height: 30px;
+                p {
+                  &:nth-child(1) {
+                    right: 150px;
+                    height: 30px;
+                    .el-input {
+                      height: 30px;
+                      line-height: 30px;
+                      input {
+                        height: 30px;
+                      }
+                    }
+                  }
+
+                  &:nth-child(2) {
+                    right: 10px;
+                    display: flex;
+                    width: 130px;
+                    span {
+                      width: 65px;
+                      height: 30px;
+                      border: 1px solid #409eff;
+                      border-radius: 6px;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      cursor: pointer;
+                      color: #409eff;
+                      &.active {
+                        background: #409eff;
+                        color: #fff;
+                      }
+                      &:nth-child(1) {
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                      }
+                      &:nth-child(2) {
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                      }
+                    }
+                  }
+                }
+              }
+              .num {
+                position: absolute;
+                p {
+                  position: absolute;
+                  left: 405px;
+                  font-size: 12px;
+                  color: #333;
+                  &:nth-child(1) {
+                    top: -2px;
+                  }
+                  &:nth-child(2) {
+                    top: 66px;
+                  }
+                  &:nth-child(3) {
+                    top: 125px;
+                  }
+                  &:nth-child(4) {
+                    top: 190px;
+                  }
+                }
+              }
+
+              .line {
+                position: absolute;
+                width: 100%;
+                height: 1px;
+                background: #000;
               }
             }
           }
